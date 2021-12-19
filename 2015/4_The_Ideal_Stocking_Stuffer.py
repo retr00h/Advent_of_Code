@@ -32,3 +32,37 @@ def partOne(input: str) -> int:
   return i
 
 print("Part One: " + str(partOne(input))) # 346386
+
+
+# --- Part Two ---
+#
+#
+# Now find one that starts with six zeroes.
+
+from threading import Thread
+import time
+from sys import exit
+
+def partTwo(input: str):
+  increment = 346386
+  startTime = time.time()
+
+  def calculate(startI: int):
+    i = startI
+    while(md5((input + str(i)).encode('utf-8')).hexdigest()[0 : 6] != "000000"):
+      if (i == startI + increment): break
+      i += 1
+    
+    if (md5((input + str(i)).encode('utf-8')).hexdigest()[0 : 6] == "000000"):
+      print("Part Two: " + str(i) + " (solution found in " + str(time.time() - startTime) + " seconds).")
+    else:
+      Thread(target = calculate, args = (startI + 4 * increment,)).start()
+  
+  Thread(target = calculate, args = (0 * increment, )).start()
+  Thread(target = calculate, args = (1 * increment, )).start()
+  Thread(target = calculate, args = (2 * increment, )).start()
+  Thread(target = calculate, args = (3 * increment, )).start()
+
+partTwo(input) # 9958218
+time.sleep(20)
+exit(0)
