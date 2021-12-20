@@ -50,3 +50,73 @@ def partOne(input: list[str]) -> int:
   return nice
 
 print("Part One: " + str(partOne(inputList))) # 236
+
+
+# --- Part Two ---
+#
+#
+# Realizing the error of his ways, Santa has switched to a better model of
+# determining whether a string is naughty or nice. None of the old rules
+# apply, as they are all clearly ridiculous.
+#
+# Now, a nice string is one with all of the following properties:
+#  - It contains a pair of any two letters that appears at least twice in
+#  the string without overlapping, like xyxy (xy) or aabcdefgaa (aa), but
+#  not like aaa (aa, but it overlaps).
+#  - It contains at least one letter which repeats with exactly one letter
+#  between them, like xyx, abcdefeghi (efe), or even aaa.
+#
+# For example:
+#  - qjhvhtzxzqqjkmpb is nice because is has a pair that appears twice (qj)
+#  and a letter that repeats with exactly one letter between them (zxz).
+#  - xxyxx is nice because it has a pair that appears twice and a letter
+#  that repeats with one between, even though the letters used by each
+#  rule overlap.
+#  - uurcxstgmygtbstg is naughty because it has a pair (tg) but no repeat
+#  with a single letter between them.
+#  - ieodomkazucvgmuy is naughty because it has a repeating letter with one
+#  between (odo), but no pair that appears twice.
+#
+# How many strings are nice under these new rules?
+
+from itertools import count
+
+def partTwo(input: list[str]) -> int:
+  nice = 0
+
+  for string in input:
+    twice: list[chr] = []
+    for c in "abcdefghijklmnopqrstuvwxyz":
+      if (string.count(c) >= 2): twice.append(c)
+      
+    pairs = list[str]()
+    for ch1 in twice:
+      for ch2 in twice:
+        pairs.append(ch1 + ch2)
+
+    containsPair = False
+    for pair in pairs:
+      firstIndex = string.find(pair)
+      if (firstIndex != -1):
+        secondIndex = string[firstIndex + 1 : ].find(pair)
+        if (secondIndex != -1 and secondIndex - firstIndex >= 2):
+          containsPair = True
+          break
+    
+    if (containsPair):
+      containsTriple = False
+      for i in range(1, len(string) - 1):
+        if (string[i - 1] == string[i + 1]):
+          containsTriple = True
+          break
+      
+      if (containsTriple): nice += 1
+  
+  return nice
+
+print("Part Two: " + str(partTwo(inputList))) # 25 INCORRECT
+
+# print(partTwo(["qjhvhtzxzqqjkmpb"]) == 1)
+# print(partTwo(["xxyxx"]) == 1)
+# print(partTwo(["uurcxstgmygtbstg"]) == 1)
+# print(partTwo(["ieodomkazucvgmuy"]) == 1)
