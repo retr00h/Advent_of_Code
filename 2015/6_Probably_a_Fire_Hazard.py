@@ -138,4 +138,4 @@ def partTwo(instructions: list[str], startCoords: list[(int, int)], endCoords: l
   
   return sum([sum(row) for row in mat])
 
-print("Part Two: " + str(partTwo(instructions, startCoords, endCoords)))
+print("Part Two: " + str(partTwo(instructions, startCoords, endCoords))) # 17836115
