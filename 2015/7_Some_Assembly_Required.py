@@ -145,4 +145,24 @@ def partOne(instructions: list[str]) -> int:
   
   return memory
 
-print("Part One: " + str(partOne(instructions).get("a")))
+print("Part One: " + str(partOne(instructions).get("a"))) # 3176
+
+
+# --- Part Two ---
+#
+#
+# Now, take the signal you got on wire a, override wire b to that signal, and
+# reset the other wires (including wire a). What new signal is ultimately
+# provided to wire a?
+
+from re import match
+
+def partTwo(instructions: list[str]) -> int:
+  for i in range(0, len(instructions)):
+    if (instructions[i].find("-> b") + 4 == len(instructions[i])):
+      instructions[i] = str(partOne(instructions).get("a")) + " -> b"
+      break
+  
+  return partOne(instructions)
+
+print("Part Two: " + str(partTwo(instructions).get("a"))) # 14710
