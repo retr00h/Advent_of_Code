@@ -41,6 +41,8 @@ import sys
 import re
 
 lines = list[str]()
+charactersTest: list[int] = [24, 28, 9, 5, 23, 32, 23, 38, 22, 30, 37, 35, 32, 8, 32, 17, 10, 8, 18, 22]
+charactersInMemoryTest: list[int] = [22, 18, 7, 3, 18, 24, 20, 32, 16, 25, 32, 32, 28, 6, 25, 14, 8, 6, 16, 18]
 
 with open(path.join(sys.path[0], "input\\8_Matchsticks.txt")) as f:
   for line in f:
@@ -49,6 +51,8 @@ with open(path.join(sys.path[0], "input\\8_Matchsticks.txt")) as f:
 
 def partOne(lines: list[str]) -> int:
   totalCharacters, totalCharactersInMemory = 0, 0
+  counter, totalCharsError, charsInMemError = 0, 0, 0
+
   for line in lines:
     line = repr(line[1:-1])
     hexChar, quote, backslash = "\\\\x[a-f0-9]{1,2}", "\\\\\"", "\\\\"
@@ -61,17 +65,29 @@ def partOne(lines: list[str]) -> int:
     for c in quotes:
       charsInMem -= len(c)
       charsInMem += 1
-    print(line)
-
-    print("HexChars: " + str(hexChars))
-    print("Quotes: " + str(quotes))
-    print("Backslashes: " + str(backslashes))
-    print("LineLen: " + str(lineLen))
-    print("CharsInMem: " + str(charsInMem))
-    print()
+    charsInMem -= int((int(len(backslashes) / 2) - (len(hexChars) + len(quotes))) / 2)
+    
+    if (counter < 20 and (lineLen != charactersTest[counter] or charsInMem != charactersInMemoryTest[counter])):
+      print(line)
+      print("HexChars: " + str(hexChars))
+      print("Quotes: " + str(quotes))
+      print("Backslashes (normalized): " + str(int(len(backslashes) / 2)))
+      print("Non-escape backslashes: " + str(int((int(len(backslashes) / 2) - (len(hexChars) + len(quotes))) / 2)))
+      print("LineLen: " + str(lineLen))
+      print("CharsInMem: " + str(charsInMem))
+      print("Test line len: " + str(charactersTest[counter]))
+      print("Test chars in mem: " + str(charactersInMemoryTest[counter]))
+      print()
+      if (lineLen != charactersTest[counter]):
+        totalCharsError += 1
+      else:
+        charsInMemError += 1
 
     totalCharacters += lineLen
     totalCharactersInMemory += charsInMem
+    counter += 1
+  print("Errors on total characters: " + str(100 * (totalCharsError / len(charactersTest))))
+  print("Errors on characters in memory: " + str(100 * (charsInMemError / len(charactersInMemoryTest))))
   return totalCharacters - totalCharactersInMemory
 
 print("PartOne: " + str(partOne(lines)))
