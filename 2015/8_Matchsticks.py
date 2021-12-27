@@ -41,8 +41,16 @@ import sys
 import re
 
 lines = list[str]()
-charactersTest: list[int] = [24, 28, 9, 5, 23, 32, 23, 38, 22, 30, 37, 35, 32, 8, 32, 17, 10, 8, 18, 22]
-charactersInMemoryTest: list[int] = [22, 18, 7, 3, 18, 24, 20, 32, 16, 25, 32, 32, 28, 6, 25, 14, 8, 6, 16, 18]
+charactersTest: list[int] = [
+  24, 28, 9, 5, 23, 32, 23, 38, 22, 30, 37, 35, 32, 8, 32, 17, 10, 8, 18, 22, 25,
+  10, 6, 20, 30, 16, 40, 35, 34, 31, 11, 31, 25, 21, 10, 32, 21, 24, 13, 20, 6, 21,
+  9, 7, 25, 31, 4, 20, 33, 16, 21, 8, 26, 21, 24, ]
+charactersInMemoryTest: list[int] = [
+  22, 18, 7, 3, 18, 24, 20, 32, 16, 25, 32, 32, 28, 6, 25, 14, 8, 6, 16, 18, 20, 8,
+  1, 18, 26, 14, 31, 31, 25, 27, 6, 23, 23, 15, 7, 25, 18, 20, 10, 16, 3, 14, 7, 5,
+  17, 28, 2, 17, 27, 13, 19, 6, 19, 16, 19, ]
+print(len(charactersTest))
+print(len(charactersInMemoryTest))
 
 with open(path.join(sys.path[0], "input\\8_Matchsticks.txt")) as f:
   for line in f:
@@ -50,44 +58,34 @@ with open(path.join(sys.path[0], "input\\8_Matchsticks.txt")) as f:
     lines.append(line)
 
 def partOne(lines: list[str]) -> int:
-  totalCharacters, totalCharactersInMemory = 0, 0
-  counter, totalCharsError, charsInMemError = 0, 0, 0
+  codeChars, memoryChars = 0, 0
+  backslash, quote, hexChar = "\\\\", "\\\"", "\\\\x[a-f0-9]{2}"
 
+  counter = 0
+  codeCharsErrors, memoryCharsErrors = 0, 0
   for line in lines:
-    line = repr(line[1:-1])
-    hexChar, quote, backslash = "\\\\x[a-f0-9]{1,2}", "\\\\\"", "\\\\"
-    hexChars, quotes, backslashes = re.findall(hexChar, line), re.findall(quote, line), re.findall(backslash, line)
-    lineLen = len(line) - int(len(backslashes) / 2)
-    charsInMem = lineLen - 2 # - len(hexChars) - len(quotes) - len(backslashes)
-    for c in hexChars:
-      charsInMem -= len(c)
-      charsInMem += 1
-    for c in quotes:
-      charsInMem -= len(c)
-      charsInMem += 1
-    charsInMem -= int((int(len(backslashes) / 2) - (len(hexChars) + len(quotes))) / 2)
-    
-    if (counter < 20 and (lineLen != charactersTest[counter] or charsInMem != charactersInMemoryTest[counter])):
-      print(line)
-      print("HexChars: " + str(hexChars))
+    backslashes = re.findall(backslash, line)
+    quotes = re.findall(quote, line[1:-1])
+    hexChars = re.findall(hexChar, line)
+    lineLen = len(line)
+    charsInMem = lineLen - 2 - len(quotes) - (3 * len(hexChars)) - int((len(backslashes) - len(quotes) - len(hexChars)) / 2)
+    if (counter < len(charactersTest) and (charactersTest[counter] != lineLen or charactersInMemoryTest[counter] != charsInMem)):
+      print("Line: " + line)
+      print("Backslashes: " + str(backslashes))
       print("Quotes: " + str(quotes))
-      print("Backslashes (normalized): " + str(int(len(backslashes) / 2)))
-      print("Non-escape backslashes: " + str(int((int(len(backslashes) / 2) - (len(hexChars) + len(quotes))) / 2)))
-      print("LineLen: " + str(lineLen))
-      print("CharsInMem: " + str(charsInMem))
-      print("Test line len: " + str(charactersTest[counter]))
-      print("Test chars in mem: " + str(charactersInMemoryTest[counter]))
+      print("HexChars: " + str(hexChars))
+      print("Line length: " + str(lineLen))
+      print("Characters in memory: " + str(charsInMem))
+      print("Correct line length: " + str(charactersTest[counter]))
+      print("Correct characters in memory: " + str(charactersInMemoryTest[counter]))
       print()
-      if (lineLen != charactersTest[counter]):
-        totalCharsError += 1
-      else:
-        charsInMemError += 1
-
-    totalCharacters += lineLen
-    totalCharactersInMemory += charsInMem
+      if (charactersTest[counter] != lineLen): codeCharsErrors += 1
+      else: memoryCharsErrors += 1
+    codeChars += lineLen
+    memoryChars += charsInMem
     counter += 1
-  print("Errors on total characters: " + str(100 * (totalCharsError / len(charactersTest))))
-  print("Errors on characters in memory: " + str(100 * (charsInMemError / len(charactersInMemoryTest))))
-  return totalCharacters - totalCharactersInMemory
+  print("Code chars errors: " + str(codeCharsErrors * 100 / len(charactersTest)) + "%")
+  print("Memory chars errors: " + str(memoryCharsErrors * 100 / len(charactersInMemoryTest)) + "%")
+  return codeChars - memoryChars
 
-print("PartOne: " + str(partOne(lines)))
+print("Part One: " + str(partOne(lines)))
