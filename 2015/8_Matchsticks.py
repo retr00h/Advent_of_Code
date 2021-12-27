@@ -38,19 +38,8 @@
 
 from os import path
 import sys
-import re
 
 lines = list[str]()
-charactersTest: list[int] = [
-  24, 28, 9, 5, 23, 32, 23, 38, 22, 30, 37, 35, 32, 8, 32, 17, 10, 8, 18, 22, 25,
-  10, 6, 20, 30, 16, 40, 35, 34, 31, 11, 31, 25, 21, 10, 32, 21, 24, 13, 20, 6, 21,
-  9, 7, 25, 31, 4, 20, 33, 16, 21, 8, 26, 21, 24, ]
-charactersInMemoryTest: list[int] = [
-  22, 18, 7, 3, 18, 24, 20, 32, 16, 25, 32, 32, 28, 6, 25, 14, 8, 6, 16, 18, 20, 8,
-  1, 18, 26, 14, 31, 31, 25, 27, 6, 23, 23, 15, 7, 25, 18, 20, 10, 16, 3, 14, 7, 5,
-  17, 28, 2, 17, 27, 13, 19, 6, 19, 16, 19, ]
-print(len(charactersTest))
-print(len(charactersInMemoryTest))
 
 with open(path.join(sys.path[0], "input\\8_Matchsticks.txt")) as f:
   for line in f:
@@ -58,34 +47,33 @@ with open(path.join(sys.path[0], "input\\8_Matchsticks.txt")) as f:
     lines.append(line)
 
 def partOne(lines: list[str]) -> int:
-  codeChars, memoryChars = 0, 0
-  backslash, quote, hexChar = "\\\\", "\\\"", "\\\\x[a-f0-9]{2}"
-
-  counter = 0
-  codeCharsErrors, memoryCharsErrors = 0, 0
-  for line in lines:
-    backslashes = re.findall(backslash, line)
-    quotes = re.findall(quote, line[1:-1])
-    hexChars = re.findall(hexChar, line)
-    lineLen = len(line)
-    charsInMem = lineLen - 2 - len(quotes) - (3 * len(hexChars)) - int((len(backslashes) - len(quotes) - len(hexChars)) / 2)
-    if (counter < len(charactersTest) and (charactersTest[counter] != lineLen or charactersInMemoryTest[counter] != charsInMem)):
-      print("Line: " + line)
-      print("Backslashes: " + str(backslashes))
-      print("Quotes: " + str(quotes))
-      print("HexChars: " + str(hexChars))
-      print("Line length: " + str(lineLen))
-      print("Characters in memory: " + str(charsInMem))
-      print("Correct line length: " + str(charactersTest[counter]))
-      print("Correct characters in memory: " + str(charactersInMemoryTest[counter]))
-      print()
-      if (charactersTest[counter] != lineLen): codeCharsErrors += 1
-      else: memoryCharsErrors += 1
-    codeChars += lineLen
-    memoryChars += charsInMem
-    counter += 1
-  print("Code chars errors: " + str(codeCharsErrors * 100 / len(charactersTest)) + "%")
-  print("Memory chars errors: " + str(memoryCharsErrors * 100 / len(charactersInMemoryTest)) + "%")
-  return codeChars - memoryChars
+  return sum(len(line) - len(eval(line)) for line in lines)
 
 print("Part One: " + str(partOne(lines)))
+
+
+# --- Part Two ---
+#
+#
+# Now, let's go the other way. In addition to finding the number of
+# characters of code, you should now encode each code representation as a new
+# string and find the number of characters of the new encoded representation,
+# including the surrounding double quotes.
+#
+# For example:
+#  - "" encodes to "\"\"", an increase from 2 characters to 6.
+#  - "abc" encodes to "\"abc\"", an increase from 5 characters from 9.
+#  - "aaa\"aaa" encodes to "\"aaa\\\"aaa\"", an increase from 10 characters
+#  to 16.
+#  - "\x27" encodes to "\"\\x27\"", an increase from 6 characters to 11.
+#
+# Your task is to find the total number of characters to represent the newly
+# encoded strings minus the number of characters of code in the original
+# string literal. For example, for the strings above, the total encoded
+# length (6 + 9 + 16 + 11 = 42) minus the characters in the original code
+# representation (23, just like in the first part of this puzzle) is 42 - 23 = 19.
+
+def partTwo(lines: list[str]) -> int:
+  return sum(2 + line.count('"') + line.count('\\') for line in lines)
+
+print("Part Two: " + str(partTwo(lines)))
