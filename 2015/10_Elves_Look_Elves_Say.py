@@ -45,3 +45,16 @@ def partOne(input: str, steps: int) -> str:
   return len(res)
 
 print("Part One: " + str(partOne(input, 40)))
+
+
+# --- Part Two ---
+#
+#
+# Neat, right? You might also enjoy hearing
+# John Conway talking about this sequence (https://www.youtube.com/watch?v=ea7lJkEhytA) (that's Conway Game of
+# Life fame)
+#
+# Now, starting again with the digits in your puzzle input, apply this
+# process 50 times. What is the length of the new result?
+
+print("Part Two: " + str(partOne(input, 50)))
