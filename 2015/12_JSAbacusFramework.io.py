@@ -30,16 +30,14 @@ with open(path.join(sys.path[0], "input\\12_JSAbacusFramework.io.txt")) as f:
 
 def partOne(js) -> int:
   def reduce(el) -> int:
-    if (type(el) is int): return el
-    elif (type(el) is list):
+    if type(el) is int: return el
+    elif type(el) is list:
       s = 0
-      for l in el:
-        s += reduce(l)
+      for l in el: s += reduce(l)
       return s
-    elif (type(el) is dict):
+    elif type(el) is dict:
       s = 0
-      for l in el.values():
-        s += reduce(l)
+      for l in el.values(): s += reduce(l)
       return s
     else: return 0
   return reduce(js)
@@ -61,3 +59,20 @@ print("Part One: " + str(partOne(js)))
 #  - {"d":"red","e":[1,2,3,4],"f":5} now has a sum of 0, because the entire structure is ignored.
 #  - [1,"red",5] has a sum of 6, because "red" in an array has no effect.
 
+def partTwo(js) -> int:
+  def reduce(el) -> int:
+    if type(el) is int: return el
+    elif type(el) is list:
+      s = 0
+      for l in el: s += reduce(l)
+      return s
+    elif type(el) is dict:
+      if "red" in el.values(): return 0
+      else:
+        s = 0
+        for l in el.values(): s += reduce(l)
+        return s
+    else: return 0
+  return reduce(js)
+
+print("Part Two: " + str(partTwo(js)))
