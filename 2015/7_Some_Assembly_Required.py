@@ -51,7 +51,7 @@
 #
 # In little Bobby's kit's instructions booklet (provided as your puzzle input), what signal is ultimately provided to wire a?
 
-from os import access, path
+from os import path
 import sys
 from typing import Tuple
 

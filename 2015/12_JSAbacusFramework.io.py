@@ -42,7 +42,7 @@ def partOne(js) -> int:
     else: return 0
   return reduce(js)
     
-print("Part One: " + str(partOne(js)))
+print("Part One: " + str(partOne(js))) # 156366
 
 
 # --- Part Two ---
@@ -75,4 +75,4 @@ def partTwo(js) -> int:
     else: return 0
   return reduce(js)
 
-print("Part Two: " + str(partTwo(js)))
+print("Part Two: " + str(partTwo(js))) # 96852

@@ -49,7 +49,7 @@ with open(path.join(sys.path[0], "input\\8_Matchsticks.txt")) as f:
 def partOne(lines: list[str]) -> int:
   return sum(len(line) - len(eval(line)) for line in lines)
 
-print("Part One: " + str(partOne(lines)))
+print("Part One: " + str(partOne(lines))) # 1342
 
 
 # --- Part Two ---
@@ -76,4 +76,4 @@ print("Part One: " + str(partOne(lines)))
 def partTwo(lines: list[str]) -> int:
   return sum(2 + line.count('"') + line.count('\\') for line in lines)
 
-print("Part Two: " + str(partTwo(lines)))
+print("Part Two: " + str(partTwo(lines))) # 2074

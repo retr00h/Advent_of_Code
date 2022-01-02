@@ -79,11 +79,11 @@ def partOne(oldPassword: str) -> str:
     newPassword = incrementPassword(newPassword)
   return newPassword
 
-print("Part One: " + str(partOne(password)))
+print("Part One: " + str(partOne(password))) # hepxxyzz
 
 # --- Part Two ---
 #
 #
 # Santa's password expired again. What's the next one?
 
-print("Part Two: " + str(partOne(partOne(password))))
+print("Part Two: " + str(partOne(partOne(password)))) # heqaabcc

@@ -44,7 +44,7 @@ def partOne(input: str, steps: int) -> str:
     res = newRes
   return len(res)
 
-print("Part One: " + str(partOne(input, 40)))
+print("Part One: " + str(partOne(input, 40))) # 360154
 
 
 # --- Part Two ---
@@ -57,4 +57,4 @@ print("Part One: " + str(partOne(input, 40)))
 # Now, starting again with the digits in your puzzle input, apply this
 # process 50 times. What is the length of the new result?
 
-print("Part Two: " + str(partOne(input, 50)))
+print("Part Two: " + str(partOne(input, 50))) # 5103798
