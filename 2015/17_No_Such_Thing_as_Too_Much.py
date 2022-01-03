@@ -53,23 +53,18 @@ print("Part One: " + str(partOne(containers, 150))) # 4372
 # In the example above, the minimum number of containers was two. There were
 # three ways to use that many containers, and so the answer there would be 3.
 
-from itertools import permutations
-
 def partTwo(containers: list[int], liters: int) -> int:
-  containerList, min, t = [], None, None
+  minTLen = None
   for i in range(1, len(containers)):
-    for t in combinations(containers, i):
-      containerList.append(t)
-  
-  for l in containerList:
-    provisionalMin: int
-    if (sum(l) == liters):
-      provisionalMin = len(l)
-      if (min == None or provisionalMin < min):
-        min = provisionalMin
-        t = l
+    for comb in combinations(containers, i):
+      if (sum(comb) == liters):
+        minTLen = len(comb)
+        break
+    if minTLen != None: break
+
   res = 0
-  for p in permutations(t): res += 1
+  for comb in combinations(containers, i):
+    if (sum(comb) == liters): res += 1
   return res
 
-print("Part Two: " + str(partTwo(containers, 150))) # 24
+print("Part Two: " + str(partTwo(containers, 150))) # 4
