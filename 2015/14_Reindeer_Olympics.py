@@ -42,33 +42,46 @@ with open(path.join(sys.path[0], "input\\14_Reindeer_Olympics.txt")) as f:
 
 def partOne(reindeers: dict, seconds: int) -> int:
   res = None
-  for r in reindeers:
-    counter, resting, distance = 0, False, 0
-    travelTime = reindeers[r]["travelTime"]
-    speed = reindeers[r]["speed"]
-    restingTime = reindeers[r]["restingTime"]
-    for i in range(0, seconds):
-      if resting:
-        if counter < restingTime:
-          counter += 1
-        else:
-          counter = 0
-          resting = False
-      else:
-        if counter < travelTime:
-          counter += 1
-          distance += speed
-        else:
-          counter = 0
+  for reindeer in reindeers.keys():
+    print("--- Reindeer: " + reindeer + " ---")
+    print()
+    reindeerStats = reindeers[reindeer]
+    traveledDistance, elapsedSeconds = 0, 0
+    resting = False
+    print("Elapsed seconds: " + str(elapsedSeconds))
+    print("Resting: " + str(resting))
+    print("Traveled distance: " + str(traveledDistance))
+    print()
+    while(True):
+      if not resting:
+        if elapsedSeconds + reindeerStats["travelTime"] < seconds:
+          elapsedSeconds += reindeerStats["travelTime"]
+          traveledDistance += (reindeerStats["travelTime"] * reindeerStats["speed"])
           resting = True
-      if i == seconds - 1:
-        if res == None: res = distance
-        elif distance > res: res = distance
-    print(res)
+        else:
+          secondsToAdd = seconds - elapsedSeconds
+          traveledDistance += secondsToAdd * reindeerStats["speed"]
+          break
+      else:
+        if elapsedSeconds + reindeerStats["restingTime"] < seconds:
+          elapsedSeconds += reindeerStats["restingTime"]
+          resting = False
+        else:
+          secondsToAdd = seconds - elapsedSeconds
+          seconds += secondsToAdd
+          break
+      print("Elapsed seconds: " + str(elapsedSeconds))
+      print("Resting: " + str(resting))
+      print("Traveled distance: " + str(traveledDistance))
+      print()
+    print()
+    if res == None: res = traveledDistance
+    elif traveledDistance > res: res = traveledDistance
   return res
 
-testReindeers = {'Comet' : {'speed' : 14, 'travelTime' : 10, 'restingTime' : 127},
-  'Dancer' : {'speed' : 16, 'travelTime' : 11, 'restingTime' : 162}}
-print("Test: " + str(partOne(testReindeers, 1000)))
 
-print("Part One: " + str(partOne(reindeers, 2503)))
+testReindeers = {'Sonic' : {'speed' : 100, 'travelTime' : 3, 'restingTime' : 3},
+'Knuckles' : {'speed' : 10, 'travelTime' : 4, 'restingTime' : 2}}
+print("Test: " + str(partOne(testReindeers, 10)))
+
+# print("Part One: " + str(partOne(reindeers, 2503)))
