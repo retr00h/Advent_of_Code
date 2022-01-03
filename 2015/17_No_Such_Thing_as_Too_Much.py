@@ -37,3 +37,39 @@ def partOne(containers: list[int], liters: int) -> int:
   return res
 
 print("Part One: " + str(partOne(containers, 150))) # 4372
+
+
+# --- Part Two ---
+#
+#
+# While playing with all the containers in the kitchen, another load
+# of eggnog arrives! The shipping and receiving department is requesting as many
+# containers as you can spare.
+#
+# Find the minimum number of containers that can exactly fit all 150 liters
+# of eggnog. How many different ways can you fill that number of containers
+# and still hold exactly 150 litres?
+#
+# In the example above, the minimum number of containers was two. There were
+# three ways to use that many containers, and so the answer there would be 3.
+
+from itertools import permutations
+
+def partTwo(containers: list[int], liters: int) -> int:
+  containerList, min, t = [], None, None
+  for i in range(1, len(containers)):
+    for t in combinations(containers, i):
+      containerList.append(t)
+  
+  for l in containerList:
+    provisionalMin: int
+    if (sum(l) == liters):
+      provisionalMin = len(l)
+      if (min == None or provisionalMin < min):
+        min = provisionalMin
+        t = l
+  res = 0
+  for p in permutations(t): res += 1
+  return res
+
+print("Part Two: " + str(partTwo(containers, 150))) # 24
