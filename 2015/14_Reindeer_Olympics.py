@@ -67,9 +67,8 @@ def partOne(reindeers: dict, seconds: int) -> int:
     elif traveledDistance > res: res = traveledDistance
   return res
 
-testReindeers = {'Sonic' : {'speed' : 14, 'travelTime' : 10, 'restingTime' : 127},
-'Knuckles' : {'speed' : 16, 'travelTime' : 11, 'restingTime' : 162}}
-print("Test: " + str(partOne(testReindeers, 1000))) # 1120
+testReindeers = {'Sonic' : {'speed' : 10, 'travelTime' : 2, 'restingTime' : 5}}
+# print("Test: " + str(partOne(testReindeers, 10))) # 1120
 
 print("Part One: " + str(partOne(reindeers, 2503))) # 3080
 
