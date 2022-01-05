@@ -118,3 +118,97 @@ def partOne(lights: list[bool], steps: int) -> int:
   return res
 
 print("Part One: " + str(partOne(lights, 100))) # 1061
+
+
+# --- Part Two ---
+#
+#
+# You flip the instructions over; Santa goes on to point out that this is all
+# just an implementation of Conway's Game of Life (https://en.wikipedia.org/wiki/Conway's_Game_of_Life). At least, it was, until
+# you notice that something's wrong with the grid of lights you bought: four
+# lights, one in each corner, are stuck on and can't be turned off. The
+# example above will actually run like this:
+#   Initial state:
+#   ##.#.#
+#   ...##.
+#   #....#
+#   ..#...
+#   #.#..#
+#   ####.#
+#
+#   After 1 step:
+#   #.##.#
+#   ####.#
+#   ...##.
+#   ......
+#   #...#.
+#   #.####
+#
+#   After 2 steps:
+#   #..#.#
+#   #....#
+#   .#.##.
+#   ...##.
+#   .#..##
+#   ##.###
+#
+#   After 3 steps:
+#   #...##
+#   ####.#
+#   ..##.#
+#   ......
+#   ##....
+#   ####.#
+#
+#   After 4 steps:
+#   #.####
+#   #....#
+#   ...#..
+#   .##...
+#   #.....
+#   #.#..#
+#
+#   After 5 steps:
+#   ##.###
+#   .##..#
+#   .##...
+#   .##...
+#   #.#...
+#   ##...#
+#
+# After 5 steps, this example now has 17 lights on.
+#
+# In your grid of 100x100 lights, given your initial configuration, but with
+# the four corners always in the on state, how many lights are on after 100
+# steps?
+
+def partTwo(lights: list[bool], steps: int) -> int:
+  corners = [(0, 0), (0, len(lights) - 1),
+             (len(lights) - 1, 0), (len(lights) - 1, len(lights) - 1)]
+      
+  for x, y in corners: lights[x][y] = True
+
+  for step in range(0, steps):
+    newLights = deepcopy(lights)
+    for i in range(0, len(lights)):
+      for j in range(0, len(lights[i])):
+        on = 0
+        neighbors = [(i, j-1), (i-1, j-1), (i-1, j),
+                     (i-1, j+1), (i, j+1), (i+1, j+1),
+                     (i+1, j), (i+1, j-1)]
+        neighbors = [(x, y) for (x, y) in neighbors if x >= 0 and y >= 0 and x < len(lights) and y < len(lights[i])]
+        for x, y in neighbors:
+          if lights[x][y]: on += 1
+        
+        if lights[i][j]: newLights[i][j] = on == 2 or on == 3
+        else: newLights[i][j] = on == 3
+    lights = newLights
+    for x, y in corners: lights[x][y] = True
+  
+  res = 0
+  for i in range(0, len(lights)):
+    for j in range(0, len(lights[i])):
+      if lights[i][j]: res += 1
+  return res
+
+print("Part Two: " + str(partTwo(lights, 100))) # 1006
