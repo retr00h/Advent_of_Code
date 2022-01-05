@@ -83,21 +83,21 @@
 # In your grid of 100x100 lights, given your initial configuration, how many
 # lights are on after 100 steps?
 
-from os import path, remove
+from os import path
 import sys
+from copy import deepcopy
 
-lights = list[str]()
+lights = list[list[bool]]()
 
 with open(path.join(sys.path[0], "input\\18_Like_a_GIF_For_Your_Yard.txt")) as f:
   for line in f:
     line = line.strip()
-    lights.append(line)
+    lights.append([c == '#' for c in line])
 
-def partOne(lights: list[str], steps: int) -> int:
+def partOne(lights: list[bool], steps: int) -> int:
   for step in range(0, steps):
-    newLights = list[str]()
+    newLights = deepcopy(lights)
     for i in range(0, len(lights)):
-      row = ""
       for j in range(0, len(lights[i])):
         on = 0
         neighbors = [(i, j-1), (i-1, j-1), (i-1, j),
@@ -105,29 +105,16 @@ def partOne(lights: list[str], steps: int) -> int:
                      (i+1, j), (i+1, j-1)]
         neighbors = [(x, y) for (x, y) in neighbors if x >= 0 and y >= 0 and x < len(lights) and y < len(lights[i])]
         for x, y in neighbors:
-          if lights[x][y] == '#': on += 1
+          if lights[x][y]: on += 1
         
-        if lights[i][j] == '#':
-          if on == 2 or on == 3: row += '#'
-          else: row += '.'
-        else:
-          if on == 3: row += '#'
-          else: row += '.'
-      newLights.append(row)
+        if lights[i][j]: newLights[i][j] = on == 2 or on == 3
+        else: newLights[i][j] = on == 3
     lights = newLights
   
   res = 0
   for i in range(0, len(lights)):
     for j in range(0, len(lights[i])):
-      if lights[i][j] == '#': res += 1
+      if lights[i][j]: res += 1
   return res
-
-# test = [".#.#.#",
-#         "...##.",
-#         "#....#",
-#         "..#...",
-#         "#.#..#",
-#         "####.."]
-# print("Test: " + str(partOne(test, 4)))
 
 print("Part One: " + str(partOne(lights, 100))) # 1061
