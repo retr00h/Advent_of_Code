@@ -62,24 +62,19 @@ with open(path.join(sys.path[0], "input\\19_Medicine_for_Rudolph.txt")) as f:
       else: string = line
 
 def partOne(productions: dict, string: str):
+  molecules, keys = set[str](), productions.keys()
+  for k in keys:
+    counter = 0
+    index = string.find(k, counter)
+    while index != -1:
+      for p in productions[k]:
+        newMolecule = string[:index] + string[index:].replace(k, p, 1)
+        molecules.add(newMolecule)
+      counter = index + len(k)
+      index = string.find(k, counter)
+  return len(molecules)
+testProductions = {'H' : ["HO", "OH"], 'O' : ["HH"]}
+testString = "HOH"
 
-  def prepareString(string: str) -> list[str]:
-    tokens = list[str]()
-    token = ""
-    i = 0
-    while (i < len(string)):
-      c = string[i]
-      token += c
-      if not c.isupper():
-        print(c)
-        tokens.append(token)
-        token = ""
-      i += 1
-    return tokens
-
-  molecules = set[str]()
-  tokens = prepareString(string)
-  print(tokens)
-  counter = 0
-
-print("Part One: " + str(partOne(productions, string)))
+# print("Test: " + str(partOne(testProductions, testString)))
+print("Part One: " + str(partOne(productions, string))) # 509
