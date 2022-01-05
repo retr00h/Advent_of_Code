@@ -107,7 +107,7 @@ def partOne(lights: list[str], steps: int) -> int:
         for x, y in neighbors:
           if lights[x][y] == '#': on += 1
         
-        if lights[x][y] == '#':
+        if lights[i][j] == '#':
           if on == 2 or on == 3: row += '#'
           else: row += '.'
         else:
@@ -115,11 +115,6 @@ def partOne(lights: list[str], steps: int) -> int:
           else: row += '.'
       newLights.append(row)
     lights = newLights
-    for i in range(0, len(lights)):
-      row = ""
-      for j in range(0, len(lights[i])): row += lights[i][j]
-      print(row)
-    print()
   
   res = 0
   for i in range(0, len(lights)):
@@ -127,12 +122,12 @@ def partOne(lights: list[str], steps: int) -> int:
       if lights[i][j] == '#': res += 1
   return res
 
-test = [".#.#.#",
-        "...##.",
-        "#....#",
-        "..#...",
-        "#.#..#",
-        "####.."]
-print("Test: " + str(partOne(test, 4)))
+# test = [".#.#.#",
+#         "...##.",
+#         "#....#",
+#         "..#...",
+#         "#.#..#",
+#         "####.."]
+# print("Test: " + str(partOne(test, 4)))
 
-# print("Part One: " + str(partOne(lights, 100)))
+print("Part One: " + str(partOne(lights, 100))) # 1061
