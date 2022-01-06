@@ -61,7 +61,7 @@ with open(path.join(sys.path[0], "input\\19_Medicine_for_Rudolph.txt")) as f:
         else: productions.update({alfa : [beta]})
       else: string = line
 
-def partOne(productions: dict, string: str):
+def partOne(productions: dict, string: str) -> int:
   molecules, keys = set[str](), productions.keys()
   for k in keys:
     counter = 0
@@ -73,8 +73,68 @@ def partOne(productions: dict, string: str):
       counter = index + len(k)
       index = string.find(k, counter)
   return len(molecules)
-testProductions = {'H' : ["HO", "OH"], 'O' : ["HH"]}
+testProductions = {'H' : ["HO", "OH"], 'O' : ["HH"], 'e' : ['H', 'O']}
 testString = "HOH"
 
 # print("Test: " + str(partOne(testProductions, testString)))
 print("Part One: " + str(partOne(productions, string))) # 509
+
+
+# --- Part Two ---
+#
+#
+# Now that the machine is calibrated, you're ready to begin molecule
+# fabrication.
+#
+# Molecule fabrication always begins with just a single electron, e, and
+# applying replacements one at a time, just like the ones during calibration.
+#
+# For example, suppose you have the following replacements:
+#   e => H
+#   e => O
+#   H => HO
+#   H => OH
+#   O => HH
+#
+# If you'd like to make HOH, you start with e, and then make the following
+# replacements:
+#  - e => O to get O
+#  - O => HH to get HH
+#  H => OH (on the second H) to get HOH
+#
+# So, you could make HOH after 3 steps. Santa's favourite molecule, HOHOHO,
+# can be made in 6 steps.
+#
+# How long will it take to make the medicine? Given the available
+# replacements and the medicine molecule in your puzzle input, what is the
+# fewest number of steps to go from e to the medicine molecule?
+
+def partTwo(productions: dict, string: str) -> int:
+  sortedValues = list[str]()
+  for l in productions.values(): sortedValues.extend(l)
+  sortedValues = sorted(sortedValues, key = lambda x: len(x))
+  sortedValues.reverse()
+  steps = 0
+  while string != 'e':
+    from time import sleep
+    print(string)
+    print(steps)
+    sleep(0.1)
+
+    for i in range(1, len(string) + 1):
+      s = string[:i]
+      hasReplacementHappened = False
+      for v in sortedValues:
+        if v in s:
+          k = [key for key in productions.keys() if v in productions[key]]
+          s = s.replace(v, k[0], 1)
+          steps += 1
+          string = s + string[i:]
+          hasReplacementHappened = True
+          break
+      if hasReplacementHappened: break
+  return steps
+
+# print(str(partTwo(testProductions, testString)))
+print("Test: " + str(partTwo(testProductions, testString)))
+# print("Part Two: " + str(partTwo(productions, string)))
