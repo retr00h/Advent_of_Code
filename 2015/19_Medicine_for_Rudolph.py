@@ -116,25 +116,21 @@ def partTwo(productions: dict, string: str) -> int:
   sortedValues.reverse()
   steps = 0
   while string != 'e':
-    from time import sleep
-    print(string)
-    print(steps)
-    sleep(0.1)
 
-    for i in range(1, len(string) + 1):
-      s = string[:i]
-      hasReplacementHappened = False
-      for v in sortedValues:
-        if v in s:
-          k = [key for key in productions.keys() if v in productions[key]]
-          s = s.replace(v, k[0], 1)
-          steps += 1
-          string = s + string[i:]
-          hasReplacementHappened = True
-          break
-      if hasReplacementHappened: break
+    for v in sortedValues:
+      if v in string:
+        k = [key for key in productions.keys() if v in productions[key]]
+        string = string.replace(v, k[0], 1)
+        steps += 1
+        break
+    from time import sleep
+    print("String: " + string)
+    print("Steps: " + str(steps))
+    sleep(0.05)
   return steps
 
 # print(str(partTwo(testProductions, testString)))
-print("Test: " + str(partTwo(testProductions, testString)))
-# print("Part Two: " + str(partTwo(productions, string)))
+# print("Test: " + str(partTwo(testProductions, "HOH")))
+# print()
+# print("Test: " + str(partTwo(testProductions, "HOHOHO")))
+print("Part Two: " + str(partTwo(productions, string)))
