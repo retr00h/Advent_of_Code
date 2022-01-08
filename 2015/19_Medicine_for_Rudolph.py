@@ -145,3 +145,35 @@ def partTwo(productions: dict, originalString: str) -> int:
 # print()
 # print("Test: " + str(partTwo(testProductions, "HOHOHO")))
 print("Part Two: " + str(partTwo(productions, string)))
+
+
+
+
+# from itertools import permutations
+# from math import factorial
+
+# def partTwo(productions: dict, originalString: str) -> int:
+#   values = list[str]()
+#   for l in productions.values(): values.extend(l)
+#   counter, total = 0, int(factorial(len(values)))
+#   minSteps, values = -1, permutations(values)
+
+#   print(total)
+#   for p in values:
+#     steps, oldString = 0, originalString
+#     string = originalString
+#     while string != 'e':
+#       for v in p:
+#         if v in string:
+#           k = [key for key in productions.keys() if v in productions[key]]
+#           string = string.replace(v, k[0], 1)
+#           steps += 1
+#           break
+#       if string == oldString: break
+#       oldString = string
+#     if string == 'e' and steps < minSteps: minSteps = steps
+#     counter += 1
+#     if counter / total % 5 == 0:
+#       print("Part Two: processing - " + "{:.2f}".format(counter / total) + "%", end = '\r')
+    
+#   return minSteps
