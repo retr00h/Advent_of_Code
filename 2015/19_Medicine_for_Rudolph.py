@@ -109,24 +109,35 @@ print("Part One: " + str(partOne(productions, string))) # 509
 # replacements and the medicine molecule in your puzzle input, what is the
 # fewest number of steps to go from e to the medicine molecule?
 
-def partTwo(productions: dict, string: str) -> int:
+from time import sleep
+from random import shuffle
+
+def partTwo(productions: dict, originalString: str) -> int:
   sortedValues = list[str]()
   for l in productions.values(): sortedValues.extend(l)
   sortedValues = sorted(sortedValues, key = lambda x: len(x))
   sortedValues.reverse()
-  steps = 0
+  steps, stepsToShuffle, oldString = 0, 5, originalString
+  string = originalString
   while string != 'e':
-
+    if stepsToShuffle == 0:
+      string = oldString = originalString
+      stepsToShuffle = 5
+      shuffle(sortedValues)
     for v in sortedValues:
       if v in string:
         k = [key for key in productions.keys() if v in productions[key]]
         string = string.replace(v, k[0], 1)
         steps += 1
         break
-    from time import sleep
-    print("String: " + string)
-    print("Steps: " + str(steps))
-    sleep(0.05)
+    
+    if string == oldString: stepsToShuffle -= 1
+    else: stepsToShuffle == 5
+    oldString = string
+    # print("String: " + string)
+    # print("Steps: " + str(steps))
+    # print()
+    # sleep(0.1)
   return steps
 
 # print(str(partTwo(testProductions, testString)))
