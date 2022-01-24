@@ -33,6 +33,18 @@ For example:
   R5, L5, R5, R3 leaves you 12 blocks away.
 
 How many blocks away is Easter Bunny HQ?
+
+
+--- Part Two ---
+
+Then, you notice the instructions continue on the back of the Recruiting
+Document. Easter Bunny HQ is actually at the first location you visit
+twice.
+
+For example, if your instructions are R8, R4, R4, R8, the first location
+you visit twice is 4 blocks away, due East.
+
+How many blocks away is the first location you visit twice?
 */
 
 #include <iostream>
@@ -86,7 +98,7 @@ void readInput(vector<Move> &moves) {
 
 int partOne(vector<Move> &moves) {
   int currentBearing = 0;
-  int stepsN = 0, stepsS = 0, stepsW = 0, stepsE = 0;
+  int x = 0, y = 0;
 
   for (int i = 0; i < moves.size(); i++) {
     currentBearing += moves[i].getDirection();
@@ -97,22 +109,20 @@ int partOne(vector<Move> &moves) {
       cout << "Current Bearing: " << currentBearing << endl;
     #endif
     switch (currentBearing) {
-      case 0: stepsN += moves[i].getDistance(); break;
-      case 180: stepsS += moves[i].getDistance(); break;
-      case 90: stepsE += moves[i].getDistance(); break;
-      case 270: stepsW -= moves[i].getDistance(); break;
+      case 0: x += moves[i].getDistance(); break;
+      case 180: x -= moves[i].getDistance(); break;
+      case 90: y += moves[i].getDistance(); break;
+      case 270: y -= moves[i].getDistance(); break;
       default: break;
     }
     #ifdef debug
-      cout << "Steps North: " << stepsN << endl;
-      cout << "Steps South: " << stepsS << endl;
-      cout << "Steps West: " << stepsW << endl;
-      cout << "Steps East: " << stepsE << endl;
+      cout << "x: " << x << endl;
+      cout << "y: " << x << endl;
       cout << endl;
     #endif
   }
 
-  return abs(stepsN - stepsS) + abs(stepsW - stepsE);
+  return abs(0 - x) + abs(0 - y);
 }
 
 int main() {
@@ -120,30 +130,31 @@ int main() {
   readInput(moves);
 
   #ifdef debug
+    int test;
     vector<Move> testMoves{};
     testMoves.emplace_back(Move(90, 2));
     testMoves.emplace_back(Move(-90, 3));
-    int test1 = partOne(testMoves);
-    cout << "Test 1: " << test1 << endl;
+    test = partOne(testMoves);
+    cout << "Test 1: " << test << endl;
 
-  testMoves = vector<Move>();
+    testMoves = vector<Move>();
     testMoves.emplace_back(Move(90, 2));
     testMoves.emplace_back(Move(90, 2));
     testMoves.emplace_back(Move(90, 2));
-    int test2 = partOne(testMoves);
-    cout << "Test 2: " << test2 << endl;
+    test = partOne(testMoves);
+    cout << "Test 2: " << test << endl;
 
     testMoves = vector<Move>();
     testMoves.emplace_back(Move(90, 5));
     testMoves.emplace_back(Move(-90, 5));
     testMoves.emplace_back(Move(90, 5));
     testMoves.emplace_back(Move(90, 3));
-    int test3 = partOne(testMoves);
-    cout << "Test 3: " << test3 << endl;
+    test = partOne(testMoves);
+    cout << "Test 3: " << test << endl;
   #endif
 
   #ifndef debug
-    cout << "Part One: " << partOne(moves) << endl;
+    cout << "Part One: " << partOne(moves) << endl; // 246
   #endif
   return 0;
 }
