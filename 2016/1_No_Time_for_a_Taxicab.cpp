@@ -86,7 +86,7 @@ void readInput(vector<Move> &moves) {
 
 int partOne(vector<Move> &moves) {
   int currentBearing = 0;
-  int verticalDistance = 0, horizontalDistance = 0;
+  int stepsN = 0, stepsS = 0, stepsW = 0, stepsE = 0;
 
   for (int i = 0; i < moves.size(); i++) {
     currentBearing += moves[i].getDirection();
@@ -97,23 +97,22 @@ int partOne(vector<Move> &moves) {
       cout << "Current Bearing: " << currentBearing << endl;
     #endif
     switch (currentBearing) {
-      case 0: verticalDistance += moves[i].getDistance(); break;
-      case 180: verticalDistance -= moves[i].getDistance(); break;
-      case 90: horizontalDistance += moves[i].getDistance(); break;
-      case 270: horizontalDistance -= moves[i].getDistance(); break;
+      case 0: stepsN += moves[i].getDistance(); break;
+      case 180: stepsS += moves[i].getDistance(); break;
+      case 90: stepsE += moves[i].getDistance(); break;
+      case 270: stepsW -= moves[i].getDistance(); break;
       default: break;
     }
     #ifdef debug
-      cout << "Vertical Distance: " << verticalDistance << endl;
-      cout << "Horizontal Distance: " << horizontalDistance << endl;
+      cout << "Steps North: " << stepsN << endl;
+      cout << "Steps South: " << stepsS << endl;
+      cout << "Steps West: " << stepsW << endl;
+      cout << "Steps East: " << stepsE << endl;
       cout << endl;
     #endif
-
-    if (verticalDistance < 0) verticalDistance = -verticalDistance;
-    if (horizontalDistance < 0) horizontalDistance = -horizontalDistance;
   }
 
-  return verticalDistance + horizontalDistance;
+  return abs(stepsN - stepsS) + abs(stepsW - stepsE);
 }
 
 int main() {
@@ -122,12 +121,25 @@ int main() {
 
   #ifdef debug
     vector<Move> testMoves{};
+    testMoves.emplace_back(Move(90, 2));
+    testMoves.emplace_back(Move(-90, 3));
+    int test1 = partOne(testMoves);
+    cout << "Test 1: " << test1 << endl;
+
+  testMoves = vector<Move>();
+    testMoves.emplace_back(Move(90, 2));
+    testMoves.emplace_back(Move(90, 2));
+    testMoves.emplace_back(Move(90, 2));
+    int test2 = partOne(testMoves);
+    cout << "Test 2: " << test2 << endl;
+
+    testMoves = vector<Move>();
     testMoves.emplace_back(Move(90, 5));
     testMoves.emplace_back(Move(-90, 5));
     testMoves.emplace_back(Move(90, 5));
     testMoves.emplace_back(Move(90, 3));
-
-    cout << "Test: " << partOne(testMoves) << endl;
+    int test3 = partOne(testMoves);
+    cout << "Test 3: " << test3 << endl;
   #endif
 
   #ifndef debug
