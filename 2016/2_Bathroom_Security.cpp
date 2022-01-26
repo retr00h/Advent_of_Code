@@ -81,7 +81,7 @@ bathroom code?
 
 using namespace std;
 
-//#define debug true
+#define debug true
 
 void readInput(vector<string> &instructions) {
   ifstream f("../2016/input/2_Bathroom_Security.txt");
@@ -111,6 +111,29 @@ string partOne(const vector<string> &instructions) {
   return code;
 }
 
+string partTwo(const vector<string> &instructions) {
+  char keypad[5][5] = {{-1,-1, 1, -1, -1},
+                      {-1, 2, 3, 4, -1},
+                      {5,6,7, 8, 9},
+                      {-1, 'A', 'B', 'C', -1},
+                       {-1, -1, 'D', -1, -1}};
+  string code = "";
+  int x = 2, y = 0;
+  for (int i = 0; i < instructions.size(); i++) {
+    string instruction = instructions[i];
+    for (int j = 0; j < instruction.length(); j++) {
+      switch (instruction[j]) {
+        case 'U': if (x - 1 >= 0 and keypad[x-1][y] != -1) x--; break;
+        case 'D': if (x + 1 <= 5 and keypad[x+1][y] != -1) x++; break;
+        case 'L': if (y - 1 >= 0 and keypad[x][y-1] != -1) y--; break;
+        case 'R': if (y + 1 <= 5 and keypad[x][y+1] != -1) y++; break;
+      }
+    }
+    code += to_string(keypad[x][y]);
+  }
+  return code;
+}
+
 int main() {
   vector<string> instructions{};
   readInput(instructions);
@@ -122,10 +145,12 @@ int main() {
     testInstructions.emplace_back("LURDL");
     testInstructions.emplace_back("UUUUD");
     cout << "Test: " << partOne(testInstructions) << endl;
+    cout << "Test: " << partTwo(testInstructions) << endl;
   #endif
 
   #ifndef debug
     cout << "Part One: " << partOne(instructions) << endl; // 38961
+    cout << "Part Two: " << partTwo(instructions) << endl; // 38961
   #endif
   return 0;
 }
