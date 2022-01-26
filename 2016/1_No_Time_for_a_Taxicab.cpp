@@ -97,64 +97,127 @@ void readInput(vector<Move> &moves) {
 }
 
 int partOne(vector<Move> &moves) {
-  int currentBearing = 0;
-  int x = 0, y = 0;
+  int currentBearing = 0, x = 0, y = 0;
 
   for (int i = 0; i < moves.size(); i++) {
     currentBearing += moves[i].getDirection();
     if (currentBearing == 360) currentBearing = 0;
     else if (currentBearing == -90) currentBearing = 270;
-    #ifdef debug
-      cout << moves[i].getDirection() << " " << moves[i].getDistance() << endl;
-      cout << "Current Bearing: " << currentBearing << endl;
-    #endif
     switch (currentBearing) {
-      case 0: x += moves[i].getDistance(); break;
-      case 180: x -= moves[i].getDistance(); break;
-      case 90: y += moves[i].getDistance(); break;
-      case 270: y -= moves[i].getDistance(); break;
+      case 0: y += moves[i].getDistance(); break;
+      case 180: y -= moves[i].getDistance(); break;
+      case 90: x += moves[i].getDistance(); break;
+      case 270: x -= moves[i].getDistance(); break;
       default: break;
     }
-    #ifdef debug
-      cout << "x: " << x << endl;
-      cout << "y: " << x << endl;
-      cout << endl;
-    #endif
   }
 
   return abs(0 - x) + abs(0 - y);
+}
+
+class Coord {
+  private:
+    int x, y;
+  public:
+    Coord(int a, int b) {
+      x = a;
+      y = b;
+    }
+    int getX() const {
+      return x;
+    }
+    int getY() const {
+      return y;
+    };
+
+};
+
+class Segment {
+  private:
+    Coord start, end;
+  public:
+    Segment(Coord s, Coord e) : end(e), start(s) {}
+    Coord getStart() const {
+      return start;
+    }
+    Coord getEnd() const {
+      return end;
+    }
+    Coord findIntersection(Segment other) const {
+      int x, y;
+      Coord thisStart = this->start, thisEnd = this->end;
+      Coord otherStart = other.getStart(), otherEnd = other.getEnd();
+      if (thisStart.getX() > otherStart.getX() and thisStart.getX() < otherEnd.getX()) x = thisStart.getX();
+      else if (otherStart.getX() > thisStart.getX() and otherStart.getX() < thisEnd.getX()) x = otherStart.getX();
+      else return Coord(INT_MAX, INT_MAX);
+
+      if (thisStart.getY() > otherStart.getY() and thisStart.getY() < otherEnd.getY()) y = thisStart.getY();
+      else if (otherStart.getY() > thisStart.getY() and otherStart.getY() < thisEnd.getY()) y = otherStart.getY();
+      else return Coord(INT_MAX, INT_MAX);
+
+      return Coord(x, y);
+    }
+};
+int partTwo(vector<Move> &moves) {
+  vector<Segment> segments{};
+  int currentBearing = 0, x = 0, y = 0;
+  Coord start(0,0), end(0,0);
+
+  for (int i = 0; i < moves.size(); i++) {
+    currentBearing += moves[i].getDirection();
+    if (currentBearing == 360) currentBearing = 0;
+    else if (currentBearing == -90) currentBearing = 270;
+
+    switch (currentBearing) {
+      case 0: y += moves[i].getDistance(); break;
+      case 180: y -= moves[i].getDistance(); break;
+      case 90: x += moves[i].getDistance(); break;
+      case 270: x -= moves[i].getDistance(); break;
+      default: break;
+    }
+
+    end = Coord(x, y);
+    Segment newSegment(start, end);
+    for (int j = 0; j < segments.size(); j++) {
+      Coord intersection = segments[j].findIntersection(newSegment);
+      if (intersection.getX() != INT_MAX) {
+        return abs(0 - intersection.getX()) + abs(0 - intersection.getY());
+      }
+    }
+    segments.emplace_back(newSegment);
+    start = end;
+  }
+  return INT_MAX;
 }
 
 int main() {
   vector<Move> moves{};
   readInput(moves);
 
-  #ifdef debug
-    int test;
-    vector<Move> testMoves{};
-    testMoves.emplace_back(Move(90, 2));
-    testMoves.emplace_back(Move(-90, 3));
-    test = partOne(testMoves);
-    cout << "Test 1: " << test << endl;
-
-    testMoves = vector<Move>();
-    testMoves.emplace_back(Move(90, 2));
-    testMoves.emplace_back(Move(90, 2));
-    testMoves.emplace_back(Move(90, 2));
-    test = partOne(testMoves);
-    cout << "Test 2: " << test << endl;
-
-    testMoves = vector<Move>();
-    testMoves.emplace_back(Move(90, 5));
-    testMoves.emplace_back(Move(-90, 5));
-    testMoves.emplace_back(Move(90, 5));
-    testMoves.emplace_back(Move(90, 3));
-    test = partOne(testMoves);
-    cout << "Test 3: " << test << endl;
-  #endif
+//  #ifdef debug
+//    Coord intersection = Segment(Coord(0,0), Coord(8,0)).findIntersection(Segment(Coord(4,-4), Coord(4,4)));
+//    cout << INT_MAX << endl;
+//    cout << intersection.getX() << " " << intersection.getY() << endl;
+//  #endif
 
   #ifndef debug
     cout << "Part One: " << partOne(moves) << endl; // 246
+  #endif
+
+  #ifdef debug
+    int test;
+    vector<Move> testMoves{};
+    testMoves = vector<Move>();
+    testMoves.emplace_back(Move(90, 8));
+    testMoves.emplace_back(Move(90, 4));
+    testMoves.emplace_back(Move(90, 4));
+    testMoves.emplace_back(Move(90, 8));
+    test = partTwo(testMoves);
+    cout << "Test: " << test << endl;
+  #endif
+
+  #ifndef debug
+    cout << "Part Two: " << partTwo(moves) << endl;
   #endif
   return 0;
 }
