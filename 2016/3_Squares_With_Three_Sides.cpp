@@ -25,46 +25,44 @@
 
 using namespace std;
 
-#define debug true
+//#define debug true
 
-void readInput(vector<vector<int>> numbers) {
-  ifstream f("../2016/3_Squares_With_Three_Sides.txt");
+vector<vector<int>> readInput() {
+  vector<vector<int>> numbers{};
+  ifstream f("../2016/input/3_Squares_With_Three_Sides.txt");
   int a, b, c;
+  bool first = true;
   while (f >> a >> b >> c) {
-    vector<int> arr{a, b, c};
+    vector<int> arr = {a, b, c};
     numbers.emplace_back(arr);
   }
+  f.close();
+  return numbers;
 }
 
 int partOne(vector<vector<int>> numbers) {
   int counter = 0;
   for (int i = 0; i < numbers.size(); i++) {
-     int a = numbers[i][0];
-     int b = numbers[i][1];
-     int c = numbers[i][2];
+    int a = numbers[i][0];
+    int b = numbers[i][1];
+    int c = numbers[i][2];
     #ifdef debug
-    cout << a << " " << b << " " << c << endl;
+      cout << a << " " << b << " " << c << endl;
     #endif
-     bool ok = true;
-     if (a + b <= c) ok = false;
-     else if (a + c <= b) ok = false;
-     else if (b + c <= a) ok = false;
-     if (ok) counter++;
+
+    if (a + b > c and a + c > b and b + c > a) ++counter;
   }
   return counter;
 }
 
 int main() {
-  vector<vector<int>> numbers{};
-  readInput(numbers);
+  vector<vector<int>> numbers = readInput();
+  cout << numbers[0][0] << " " << numbers[0][1] << " " << numbers[0][2] << endl;
   #ifdef debug
-    vector<int> test{};
-    test.emplace_back(5);
-    test.emplace_back(10);
-    test.emplace_back(25);
-    vector<vector<int>> test2{};
-    test2.emplace_back(test);
-    cout << "Test: " << partOne(test2) << endl;
+    vector<int*> test{};
+    int arr[3] = {5,10,25};
+    test.emplace_back(arr);
+    cout << "Test: " << partOne(test) << endl;
   #endif
 
   #ifndef debug
