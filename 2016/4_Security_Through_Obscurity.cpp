@@ -37,17 +37,53 @@ class Room {
     string encryptedName;
     int sectorID;
     string checksum;
+
+    static char* findMostCommonOccurrences(const string &s) {
+      string str = s;
+      char* mostCommon = static_cast<char*>(malloc(5 * sizeof(char)));
+      for (int i = 0; i < 5; i++) {
+        int occ = 0;
+        char mc;
+        for (char a : str) {
+          int o = 0;
+          for (char b : str) if (a == b) o++;
+          if (o > occ) {
+            mc = a;
+            occ = o;
+          }
+        }
+        mostCommon[i] = mc;
+        str = replace(str, mc);
+      }
+      return mostCommon;
+    }
+
+
+    static string replace(string &s, const char &c) {
+      string newS;
+      for (char ch : s) {
+        if (ch != c) newS += ch;
+      }
+      return newS;
+    }
   public:
-    Room(string encName, int id, string chksm) {
-      encryptedName = encName;
+    Room(const string &encName, const int &id, const string &chksm) {
+      for (char c : encName) if (c != '-') encryptedName += c;
       sectorID = id;
       checksum = chksm;
     }
-    string getEncryptedName() const { return encryptedName; }
     int getSectorID() const { return sectorID; }
-    string getChecksum() const { return checksum; }
-    bool isReal() {
 
+    bool isReal() const {
+      for (char checksumChar : checksum) if (encryptedName.find(checksumChar) == string::npos) return false;
+
+      string str = encryptedName;
+      char* mostCommon = findMostCommonOccurrences(str);
+
+      bool real = false;
+      for (char c : checksum) for (int i = 0; i < 5; i++) if (c == mostCommon[i]) real = true;
+      free(mostCommon);
+      return real;
     }
 };
 
@@ -74,7 +110,7 @@ vector<Room> readInput() {
 
 int partOne(const vector<Room> &rooms) {
   int sum = 0;
-  for (Room room : rooms) {
+  for (const Room& room : rooms) {
     if (room.isReal()) sum += room.getSectorID();
   }
   return sum;
@@ -82,6 +118,13 @@ int partOne(const vector<Room> &rooms) {
 
 int main() {
   vector<Room> rooms = readInput();
-  cout << "Part One: " << partOne(rooms) << endl;
+  vector<Room> testRooms{};
+  testRooms.emplace_back(Room("aaaaa-bbb-z-y-x", 123, "abxyz"));
+  testRooms.emplace_back(Room("a-b-c-d-e-f-g-h", 987, "abcde"));
+  testRooms.emplace_back(Room("not-a-real-room", 404, "oarel"));
+  testRooms.emplace_back(Room("totally-real-room", 200, "decoy"));
+
+  cout << "Test: " << partOne(testRooms) << endl;
+  cout << "Part One: " << partOne(rooms) << endl; // 183904
   return 0;
 }
