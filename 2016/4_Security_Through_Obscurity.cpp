@@ -30,6 +30,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <tuple>
 
 using namespace std;
 
@@ -45,11 +46,19 @@ class Room {
       return newS;
     }
 
-    static pair<char*, int*> findMCandOcc(string s) {
+    static tuple<char*, int*, int> findMCandOcc(string s) {
+      int n = 0;
+      string foundLetters = "";
+      for (char c : s) {
+        if (foundLetters.find(c) == string::npos) {
+          foundLetters += c;
+          n++;
+        }
+      }
       char* mostCommon = static_cast<char*>(malloc(sizeof(char)));
       int* occurrences = static_cast<int*>(malloc(sizeof(int)));
 
-      for (int i = 0; i < 5; i++) {
+      for (int i = 0; i < n; i++) {
         char c;
         int maxOccurrences = 0;
         for (int j = 0; j < s.length(); j++) {
@@ -67,7 +76,7 @@ class Room {
         s = removeCharacter(s, c);
       }
 
-      return pair<char*, int*>(mostCommon, occurrences);
+      return tuple<char*, int*, int>(mostCommon, occurrences, n);
     }
 
   public:
@@ -78,30 +87,33 @@ class Room {
     }
     int getSectorID() const { return sectorID; }
 
-    static bool isAllEqual(const int *p, const int &counter) {
-      int first = p[counter];
-      for (int i = counter + 1; i < 5; i++) {
-        if (p[i] != first) return false;
-      }
-      return true;
+    static string findNextChars(const char* mostCommon, const int* occurrences, int &counter, const int &size) {
+      string nextChars = "";
+      nextChars += mostCommon[counter];
+      int lastOccurrence = occurrences[counter++];
+      while (counter < size and lastOccurrence == occurrences[counter]) nextChars += mostCommon[counter++];
+      return nextChars;
     }
 
     bool isReal() const {
       bool real = true;
-      pair<char*, int*> mostCommonAndOccurrences = findMCandOcc(encryptedName);
-      char* mostCommon = mostCommonAndOccurrences.first;
-      int* occurrences = mostCommonAndOccurrences.second;
+      tuple<char*, int*, int> mostCommonAndOccurrences = findMCandOcc(encryptedName);
+      char* mostCommon = get<0>(mostCommonAndOccurrences);
+      int* occurrences = get<1>(mostCommonAndOccurrences);
+      int size = get<2>(mostCommonAndOccurrences);
 
-      int counter = 0;
-      string calculatedChecksum = "";
+      int checksumCounter = 0, occurrencesCounter = 0;
 
-      while (!isAllEqual(occurrences, counter)) {
-        calculatedChecksum += mostCommon[counter];
-        counter++;
+      while (real and checksumCounter < 5 and occurrencesCounter < size) {
+        string possibleNextChars = findNextChars(mostCommon, occurrences, occurrencesCounter, size);
+        if (possibleNextChars.find(checksum[checksumCounter]) == string::npos) {
+          real = false;
+          break;
+        }
+        checksumCounter++;
       }
-      free(occurrences);
       free(mostCommon);
-      if (checksum.find(calculatedChecksum) != 0) real = false;
+      free(occurrences);
       return real;
     }
 };
