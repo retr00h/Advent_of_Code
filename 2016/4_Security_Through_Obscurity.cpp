@@ -29,7 +29,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <algorithm>
 #include <tuple>
 
 using namespace std;
@@ -47,6 +46,12 @@ class Room {
     }
 
     static tuple<char*, int*, int> findMCandOcc(string s) {
+      /*
+       * this method creates:
+       *  - an array containing the characters that appear in s, ordered from the most common to the least one
+       *  - an array contaiing the occurrences of each character (same order as the other array)
+       *  - the size of the arrays (it's the same)
+       */
       int n = 0;
       string foundLetters = "";
       for (char c : s) {
@@ -87,7 +92,17 @@ class Room {
     }
     int getSectorID() const { return sectorID; }
 
-    static string findNextChars(const char* mostCommon, const int* occurrences, int &counter, const int &size) {
+    static string findNextChars(const char *mostCommon, const int *occurrences, int &counter, const int &size) {
+      /*
+       * find the next possible characters, for example let
+       * mostCommon = ['a', 'b', 'z', 'y', 'x']
+       * occurrences = [5, 3, 1, 1, 1]
+       * counter = 2
+       * size = 5
+       *
+       * the next characters that can be in the checksum are 'z', 'y', abd 'z', because they appear
+       * the same number of times
+       */
       string nextChars = "";
       nextChars += mostCommon[counter];
       int lastOccurrence = occurrences[counter++];
@@ -96,6 +111,7 @@ class Room {
     }
 
     static string remove(const string &s, const char &c) {
+      // removes character c from string s
       string newS = "";
       for (char ch : s) if (ch != c) newS += ch;
       return newS;
@@ -103,14 +119,31 @@ class Room {
 
     bool isReal() const {
       bool real = true;
-      tuple<char*, int*, int> mostCommonAndOccurrences = findMCandOcc(encryptedName);
-      char* mostCommon = get<0>(mostCommonAndOccurrences);
-      int* occurrences = get<1>(mostCommonAndOccurrences);
-      int size = get<2>(mostCommonAndOccurrences);
+      tuple<char*, int*, int> t = findMCandOcc(encryptedName);
+      char* mostCommon = get<0>(t);
+      int* occurrences = get<1>(t);
+      int size = get<2>(t);
 
+      /*
+       * variables used to remember what's the next character of the checksum
+       * to be checked and what's the next character of mostCommon (and occurrences)
+       */
       int checksumCounter = 0, occurrencesCounter = 0;
 
       while (real and checksumCounter < 5 and occurrencesCounter < size) {
+        /*
+         * while the string is not invalid (yet or at all), find the next possible characters
+         *
+         * if only one character is found, check if it is the next one in the checksum
+         * if it is the next one, increment checksumCounter, else break and return false
+         *
+         * if more than one character are found, check if any of them is the next checksum character
+         * until either there are no more characters to check or the checksum is complete
+         * everytime a character is in possibleNextChars and is the next checksum character, remove it
+         * from possibleNextChars
+         * if the next character of the checksum is not found in the possible next characters, break and
+         * return false
+         */
         string possibleNextChars = findNextChars(mostCommon, occurrences, occurrencesCounter, size);
         if (possibleNextChars.length() == 1) {
           if (possibleNextChars.find(checksum[checksumCounter]) == string::npos) {
@@ -124,7 +157,7 @@ class Room {
               real = false;
               break;
             } else {
-              // character was found
+              // if the character is found
               possibleNextChars = remove(possibleNextChars, checksum[checksumCounter++]);
             }
           }
