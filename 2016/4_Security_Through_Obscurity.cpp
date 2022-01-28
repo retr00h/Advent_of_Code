@@ -95,6 +95,12 @@ class Room {
       return nextChars;
     }
 
+    static string remove(const string &s, const char &c) {
+      string newS = "";
+      for (char ch : s) if (ch != c) newS += ch;
+      return newS;
+    }
+
     bool isReal() const {
       bool real = true;
       tuple<char*, int*, int> mostCommonAndOccurrences = findMCandOcc(encryptedName);
@@ -106,11 +112,23 @@ class Room {
 
       while (real and checksumCounter < 5 and occurrencesCounter < size) {
         string possibleNextChars = findNextChars(mostCommon, occurrences, occurrencesCounter, size);
-        if (possibleNextChars.find(checksum[checksumCounter]) == string::npos) {
-          real = false;
-          break;
+        if (possibleNextChars.length() == 1) {
+          if (possibleNextChars.find(checksum[checksumCounter]) == string::npos) {
+            real = false;
+            break;
+          }
+          checksumCounter++;
+        } else {
+          while (possibleNextChars.length() > 0 and checksumCounter < 5) {
+            if (possibleNextChars.find(checksum[checksumCounter]) == string::npos) {
+              real = false;
+              break;
+            } else {
+              // character was found
+              possibleNextChars = remove(possibleNextChars, checksum[checksumCounter++]);
+            }
+          }
         }
-        checksumCounter++;
       }
       free(mostCommon);
       free(occurrences);
