@@ -86,14 +86,6 @@ class Room {
       return true;
     }
 
-//    static vector<string> findPermutations(char *common, int &counter) {
-//      vector<string> permutations{};
-//
-//
-//
-//      return permutations;
-//    }
-
     bool isReal() const {
       bool real = true;
       pair<char*, int*> mostCommonAndOccurrences = findMCandOcc(encryptedName);
@@ -108,28 +100,8 @@ class Room {
         counter++;
       }
       free(occurrences);
+      free(mostCommon);
       if (checksum.find(calculatedChecksum) != 0) real = false;
-
-      if (real) {
-        // a valid combination is any of the permutations of the remaining characters
-//        vector<string> permutations = findPermutations(mostCommon, counter);
-        string s = "";
-        for (int i = counter; i < 5; i++) {
-          s += mostCommon[i];
-        }
-        free(mostCommon);
-        do {
-          bool ok = true;
-          for (int i = counter; i < 5; i++) {
-            if (checksum[i] != s[i]) {
-              ok = false;
-              break;
-            }
-          }
-          if (ok) return true;
-        } while (std::next_permutation(s.begin(), s.end()));
-      }
-
       return real;
     }
 };
@@ -171,7 +143,7 @@ int main() {
   testRooms.emplace_back(Room("not-a-real-room", 404, "oarel"));
   testRooms.emplace_back(Room("totally-real-room", 200, "decoy"));
 
-  cout << "Test: " << partOne(testRooms) << endl;
-  cout << "Part One: " << partOne(rooms) << endl; // 183904
+  cout << "Test: " << partOne(testRooms) << endl; // 1514
+  cout << "Part One: " << partOne(rooms) << endl; // 111468
   return 0;
 }
