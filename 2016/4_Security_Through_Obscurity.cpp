@@ -29,6 +29,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -38,34 +39,37 @@ class Room {
     int sectorID;
     string checksum;
 
-    static char* findMostCommonOccurrences(const string &s) {
-      string str = s;
-      char* mostCommon = static_cast<char*>(malloc(5 * sizeof(char)));
-      for (int i = 0; i < 5; i++) {
-        int occ = 0;
-        char mc;
-        for (char a : str) {
-          int o = 0;
-          for (char b : str) if (a == b) o++;
-          if (o > occ) {
-            mc = a;
-            occ = o;
-          }
-        }
-        mostCommon[i] = mc;
-        str = replace(str, mc);
-      }
-      return mostCommon;
-    }
-
-
-    static string replace(string &s, const char &c) {
+    static string removeCharacter(string &s, char &c) {
       string newS;
-      for (char ch : s) {
-        if (ch != c) newS += ch;
-      }
+      for (char ch : s) if (ch != c) newS += ch;
       return newS;
     }
+
+    static pair<char*, int*> findMCandOcc(string s) {
+      char* mostCommon = static_cast<char*>(malloc(sizeof(char)));
+      int* occurrences = static_cast<int*>(malloc(sizeof(int)));
+
+      for (int i = 0; i < 5; i++) {
+        char c;
+        int maxOccurrences = 0;
+        for (int j = 0; j < s.length(); j++) {
+          int occ = 0;
+          for (int k = 0; k < s.length(); k++) {
+            if (s[j] == s[k]) occ++;
+          }
+          if (occ > maxOccurrences) {
+            maxOccurrences = occ;
+            c = s[j];
+          }
+        }
+        mostCommon[i] = c;
+        occurrences[i] = maxOccurrences;
+        s = removeCharacter(s, c);
+      }
+
+      return pair<char*, int*>(mostCommon, occurrences);
+    }
+
   public:
     Room(const string &encName, const int &id, const string &chksm) {
       for (char c : encName) if (c != '-') encryptedName += c;
@@ -74,15 +78,58 @@ class Room {
     }
     int getSectorID() const { return sectorID; }
 
+    static bool isAllEqual(const int *p, const int &counter) {
+      int first = p[counter];
+      for (int i = counter + 1; i < 5; i++) {
+        if (p[i] != first) return false;
+      }
+      return true;
+    }
+
+//    static vector<string> findPermutations(char *common, int &counter) {
+//      vector<string> permutations{};
+//
+//
+//
+//      return permutations;
+//    }
+
     bool isReal() const {
-      for (char checksumChar : checksum) if (encryptedName.find(checksumChar) == string::npos) return false;
+      bool real = true;
+      pair<char*, int*> mostCommonAndOccurrences = findMCandOcc(encryptedName);
+      char* mostCommon = mostCommonAndOccurrences.first;
+      int* occurrences = mostCommonAndOccurrences.second;
 
-      string str = encryptedName;
-      char* mostCommon = findMostCommonOccurrences(str);
+      int counter = 0;
+      string calculatedChecksum = "";
 
-      bool real = false;
-      for (char c : checksum) for (int i = 0; i < 5; i++) if (c == mostCommon[i]) real = true;
-      free(mostCommon);
+      while (!isAllEqual(occurrences, counter)) {
+        calculatedChecksum += mostCommon[counter];
+        counter++;
+      }
+      free(occurrences);
+      if (checksum.find(calculatedChecksum) != 0) real = false;
+
+      if (real) {
+        // a valid combination is any of the permutations of the remaining characters
+//        vector<string> permutations = findPermutations(mostCommon, counter);
+        string s = "";
+        for (int i = counter; i < 5; i++) {
+          s += mostCommon[i];
+        }
+        free(mostCommon);
+        do {
+          bool ok = true;
+          for (int i = counter; i < 5; i++) {
+            if (checksum[i] != s[i]) {
+              ok = false;
+              break;
+            }
+          }
+          if (ok) return true;
+        } while (std::next_permutation(s.begin(), s.end()));
+      }
+
       return real;
     }
 };
