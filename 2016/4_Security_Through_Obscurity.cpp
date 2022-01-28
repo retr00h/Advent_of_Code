@@ -60,8 +60,8 @@ class Room {
           n++;
         }
       }
-      char* mostCommon = static_cast<char*>(malloc(sizeof(char)));
-      int* occurrences = static_cast<int*>(malloc(sizeof(int)));
+      char* mostCommon = static_cast<char*>(malloc(n * sizeof(char)));
+      int* occurrences = static_cast<int*>(malloc(n * sizeof(int)));
 
       for (int i = 0; i < n; i++) {
         char c;
@@ -207,6 +207,6 @@ int main() {
   testRooms.emplace_back(Room("totally-real-room", 200, "decoy"));
 
   cout << "Test: " << partOne(testRooms) << endl; // 1514
-  cout << "Part One: " << partOne(rooms) << endl; // 111468
+  cout << "Part One: " << partOne(rooms) << endl; // 173787
   return 0;
 }
