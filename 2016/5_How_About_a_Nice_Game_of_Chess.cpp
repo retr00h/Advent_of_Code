@@ -32,6 +32,7 @@
 
 #include <iostream>
 #include "md5.h"
+#include <chrono>
 
 using namespace std;
 
@@ -43,13 +44,19 @@ string partOne(const string &input) {
       next = input + std::to_string(index++);
       hash = md5(next);
     } while (hash.find("00000") != 0);
-    password += hash[6];
+    password += hash[5];
   }
   return password;
 }
 
 int main() {
   string input = "abbhdwsy";
-  cout << "Part One: " << partOne(input) << endl; // b42f1987
+  auto begin = std::chrono::high_resolution_clock::now();
+  cout << "Part One: " << partOne(input); // b42f1987
+  auto end = std::chrono::high_resolution_clock::now();
+  auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
+  cout << " in " << elapsed.count() * 1e-9 << " seconds." << endl;
+
+
   return 0;
 }
