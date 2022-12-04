@@ -151,5 +151,4 @@ def part_two(compartment_one, compartment_two):
   
   return score
 
-# print("Part Two: " + str(part_two(['hcsFMMfFFhFp', 'rsFMfFZSrLrFZsSL', 'vPwwTWBwg', 'wMqvLMZHhHMvwLH', 'ttgJtRGJ', 'CrZsJsPPZsGz'], ['vJrwpWtwJgWr', 'jqHRNqRjqzjGDLGL', 'PmmdzqPrV', 'jbvcjnnSBnvTQFn', 'QctTZtZT', 'wwsLwLmpwMDw']))) # 
-print("Part Two: " + str(part_two(compartment_one, compartment_two))) # 
+print("Part Two: " + str(part_two(compartment_one, compartment_two))) # 2681
