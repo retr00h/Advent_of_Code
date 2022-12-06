@@ -87,33 +87,34 @@
 from os import path
 import sys
 
-stacks = [None] * 9
-moves = []
-
-with open(path.join(sys.path[0], "input\\5_Supply_Stacks.txt")) as f:
-  for line in f:
-    counter = 0
-    while ('[' in line):
-      if (line.startswith('   ')):
-        line = line[4:]
-      else:
-        line = line.strip()
-        val = line[1]
-        if (stacks[counter]) == None:
-          stacks[counter] = []
-        stacks[counter].append(val)
-        line = line[4:]
-      counter += 1
-    if 'move' in line:
-      line = line.split(' ')
-      moves.append([int(line[1]), int(line[3]) - 1, int(line[5]) - 1])
-    
-  for s in stacks:
-    s = s.reverse()
+def read_file():
+  stacks = [None] * 9
+  moves = []
+  with open(path.join(sys.path[0], "input\\5_Supply_Stacks.txt")) as f:
+    for line in f:
+      counter = 0
+      while ('[' in line):
+        if (line.startswith('   ')):
+          line = line[4:]
+        else:
+          line = line.strip()
+          val = line[1]
+          if (stacks[counter]) == None:
+            stacks[counter] = []
+          stacks[counter].append(val)
+          line = line[4:]
+        counter += 1
+      if 'move' in line:
+        line = line.split(' ')
+        moves.append([int(line[1]), int(line[3]) - 1, int(line[5]) - 1])
+      
+    for s in stacks:
+      s = s.reverse()
+  return (stacks, moves)
 
 def part_one(stacks, moves):
   for m in moves:
-    for i in range(0, m[0]):
+    for _ in range(0, m[0]):
       el = stacks[m[1]].pop()
       stacks[m[2]].append(el)
   
@@ -122,5 +123,90 @@ def part_one(stacks, moves):
     msg += s[-1]
   return msg
 
+stacks, moves = read_file()
 print("Part One: " + str(part_one(stacks, moves))) # WCZTHTMPS
-# print("Part One: " + str(part_one([['Z', 'N'], ['M', 'C', 'D'], ['P']], [[1, 1, 0], [3, 0, 2], [2, 1, 0], [1, 0, 1]]))) # ZQJVCVBRS
+
+
+# --- Part Two ---
+#
+#
+# As you watch the crane operator expertly rearrange the crates, you notice
+# the process isn't following your prediction.
+# 
+# Some mud was covering the writing on the side of the crane, and you quickly
+# wipe it away. The crane isn't a CrateMover 9000 - it's a CrateMover 9001.
+# 
+# The CrateMover 9001 is notable for many new and exciting features: air
+# conditioning, leather seats, an extra cup holder, and the ability to pick up
+# and move multiple crates at once.
+# 
+# Again considering the example above, the crates begin in the same configuration:
+#
+#     [D]
+# [N] [C]
+# [Z] [M] [P]
+#  1   2   3
+#
+# Moving a single crate from stack 2 to stack 1 behaves the same as before:
+# [D]
+# [N] [C]
+# [Z] [M] [P]
+#  1   2   3
+#
+# However, the action of moving three crates from stack 1 to stack 3 means
+# that those three moved crates stay in the same order, resulting in this
+# new configuration:
+#
+#         [D]
+#         [N]
+#     [C] [Z]
+#     [M] [P]
+#  1   2   3
+#
+# Next, as both crates are moved from stack 2 to stack 1, they retain their
+# order as well:
+#
+#         [D]
+#         [N]
+# [C]     [Z]
+# [M]     [P]
+#  1   2   3
+#
+# Finally, a single crate is still moved from stack 1 to stack 2, but now
+# it's crate C that gets moved:
+# 
+#         [D]
+#         [N]
+#         [Z]
+# [M] [C] [P]
+#  1   2   3
+#
+# In this example, the CrateMover 9001 has put the crates in a totally
+# different order: MCD.
+# 
+# Before the rearrangement process finishes, update your simulation so
+# that the Elves know where they should stand to be ready to unload the
+# final supplies. After the rearrangement procedure completes, what crate
+# ends up on top of each stack?
+
+def part_two(stacks, moves):
+  for m in moves:
+    l = stacks[m[1]][-m[0]:]
+    print(l)
+    if l == stacks[m[1]][:m[0] + 1]:
+       stacks[m[1]] = []
+    else:
+      stacks[m[1]] = stacks[m[1]][:m[0] + 1]
+    
+    for el in l:
+      stacks[m[2]].append(el)
+    print(stacks)
+    print()
+  
+  msg = ''
+  for s in stacks:
+    msg += s[-1]
+  return msg
+
+stacks, moves = read_file()
+print("Part Two: " + str(part_two([['Z','N'],['M','C','D'],['P']], [[1,1,0],[3,0,2],[2,1,0],[1,0,1]]))) # WCZTHTMPS
