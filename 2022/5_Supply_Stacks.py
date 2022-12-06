@@ -192,16 +192,10 @@ print("Part One: " + str(part_one(stacks, moves))) # WCZTHTMPS
 def part_two(stacks, moves):
   for m in moves:
     l = stacks[m[1]][-m[0]:]
-    print(l)
-    if l == stacks[m[1]][:m[0] + 1]:
-       stacks[m[1]] = []
-    else:
-      stacks[m[1]] = stacks[m[1]][:m[0] + 1]
-    
+    for _ in range(0, m[0]):
+      stacks[m[1]].pop()
     for el in l:
       stacks[m[2]].append(el)
-    print(stacks)
-    print()
   
   msg = ''
   for s in stacks:
@@ -209,4 +203,4 @@ def part_two(stacks, moves):
   return msg
 
 stacks, moves = read_file()
-print("Part Two: " + str(part_two([['Z','N'],['M','C','D'],['P']], [[1,1,0],[3,0,2],[2,1,0],[1,0,1]]))) # WCZTHTMPS
+print("Part Two: " + str(part_two(stacks, moves))) # BLSGJSDTS
