@@ -119,11 +119,11 @@ class Directory:
         self.children_directories = c
 
     def size(self):
-        return sum([file['size'] for file in self.files]) +\
+        return sum([file['size'] for file in self.files]) + \
             sum([c.size() for c in self.children_directories])
 
 
-root = Directory(n = '/', f = None, fs = [], c = [])
+root = Directory(n='/', f=None, fs=[], c=[])
 
 with open(path.join(sys.path[0], "input\\7_No_Space_Left_On_Device.txt")) as f:
     tree_pointer = root
@@ -195,9 +195,16 @@ print("Part One: " + str(part_one(root)))
 # Find the smallest directory that, if deleted, would free up enough space on the filesystem
 # to run the update. What is the total size of that directory?
 
+def part_two(root, smallest_size, space_needed):
+    for c in root.children_directories:
+        size = c.size()
+        if smallest_size > size >= space_needed:
+            smallest_size = size
+    for c in root.children_directories:
+        s = part_two(c, smallest_size, space_needed)
+        if smallest_size > s >= space_needed:
+            smallest_size = s
+    return smallest_size
 
-# def part_two(root):
-#
-#
-#
-# print("Part Two: " + str(part_two(root)))
+
+print("Part Two: " + str(part_two(root, root.size(), 30000000 - (70000000 - root.size()))))
