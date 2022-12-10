@@ -164,7 +164,7 @@ def part_one(root: Directory):
     return total_size
 
 
-print("Part One: " + str(part_one(root)))
+print("Part One: " + str(part_one(root))) # 1513699
 
 
 # --- Part Two ---
@@ -207,4 +207,4 @@ def part_two(root, smallest_size, space_needed):
     return smallest_size
 
 
-print("Part Two: " + str(part_two(root, root.size(), 30000000 - (70000000 - root.size()))))
+print("Part Two: " + str(part_two(root, root.size(), 30000000 - (70000000 - root.size())))) # 7991939
