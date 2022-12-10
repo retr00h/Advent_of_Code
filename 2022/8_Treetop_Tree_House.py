@@ -41,7 +41,7 @@
 
 from os import path
 import sys
-from numpy import transpose
+from numpy import transpose, flip
 
 tree_map = []
 visible_map = []
@@ -87,7 +87,7 @@ def part_one(tree_map, visible_map):
     return visible
 
 
-print("Part One: " + str(part_one(tree_map, visible_map)))
+print("Part One: " + str(part_one(tree_map, visible_map))) # 1679
 
 
 # --- Part Two ---
@@ -101,7 +101,8 @@ print("Part One: " + str(part_one(tree_map, visible_map)))
 # (If a tree is right on the edge, at least one of its viewing distances will be zero.)
 #
 # The Elves don't care about distant trees taller than those found by the rules above; the proposed tree
-# house has large eaves to keep it dry, so they wouldn't be able to see higher than the tree house anyway.
+# house has large eaves (https://en.wikipedia.org/wiki/Eaves) to keep it dry, so they wouldn't be able
+# to see higher than the tree house anyway.
 #
 # In the example above, consider the middle 5 in the second row:
 # - Looking up, its view is not blocked; it can see 1 tree (of height 3).
@@ -148,6 +149,9 @@ def part_two(tree_map):
                 right = tree_map[i][j+1:]
                 up = transposed_tree_map[j][:i]
                 down = transposed_tree_map[j][i+1:]
+                left.reverse()
+                up = flip(up)
+
                 score_left = score(tree_map[i][j], left)
                 score_right = score(tree_map[i][j], right)
                 score_up = score(tree_map[i][j], up)
@@ -158,5 +162,4 @@ def part_two(tree_map):
     return scenic_score
 
 
-print("Part Two: " + str(part_two(tree_map)))
-# print("Part Two: " + str(part_two([[3,0,3,7,3], [2,5,5,1,2], [6,5,3,3,2], [3,3,5,4,9], [3,5,3,9,0]])))
+print("Part Two: " + str(part_two(tree_map))) # 536625
