@@ -86,4 +86,77 @@ def part_one(tree_map, visible_map):
                 visible += 1
     return visible
 
+
 print("Part One: " + str(part_one(tree_map, visible_map)))
+
+
+# --- Part Two ---
+#
+#
+# Content with the amount of tree cover available, the Elves just need to know the best spot to build their
+# tree house: they would like to be able to see a lot of trees.
+#
+# To measure the viewing distance from a given tree, look up, down, left, and right from that tree; stop if
+# you reach an edge or at the first tree that is the same height or taller than the tree under consideration.
+# (If a tree is right on the edge, at least one of its viewing distances will be zero.)
+#
+# The Elves don't care about distant trees taller than those found by the rules above; the proposed tree
+# house has large eaves to keep it dry, so they wouldn't be able to see higher than the tree house anyway.
+#
+# In the example above, consider the middle 5 in the second row:
+# - Looking up, its view is not blocked; it can see 1 tree (of height 3).
+# - Looking left, its view is blocked immediately; it can see only 1 tree (of height 5, right next to it).
+# - Looking right, its view is not blocked; it can see 2 trees.
+# - Looking down, its view is blocked eventually; it can see 2 trees (one of height 3, then the tree of height
+#   5 that blocks its view).
+#
+# A tree's scenic score is found by multiplying together its viewing distance in each of the four directions.
+# For this tree, this is 4 (found by multiplying 1 * 1 * 2 * 2).
+#
+# However, you can do even better: consider the tree of height 5 in the middle of the fourth row:
+# - Looking up, its view is blocked at 2 trees (by another tree with a height of 5).
+# - Looking left, its view is not blocked; it can see 2 trees.
+# - Looking down, its view is also not blocked; it can see 1 tree.
+# - Looking right, its view is blocked at 2 trees (by a massive tree of height 9).
+#
+# This tree's scenic score is 8 (2 * 2 * 1 * 2); this is the ideal spot for the tree house.
+#
+# Consider each tree on your map. What is the highest scenic score possible for any tree?
+
+from math import prod
+
+def score(val, dir):
+    dist = 0
+    for el in dir:
+        if el < val:
+            dist += 1
+        elif el == val:
+            dist += 1
+            break
+        else:
+            break
+    return dist
+
+
+def part_two(tree_map):
+    transposed_tree_map = transpose(tree_map)
+    scenic_score = 0
+    for i in range(0, len(tree_map)):
+        for j in range(0, len(tree_map[0])):
+            if i != 0 and j != 0 and i != len(tree_map) and j != len(tree_map[0]):
+                left = tree_map[i][:j]
+                right = tree_map[i][j+1:]
+                up = transposed_tree_map[j][:i]
+                down = transposed_tree_map[j][i+1:]
+                score_left = score(tree_map[i][j], left)
+                score_right = score(tree_map[i][j], right)
+                score_up = score(tree_map[i][j], up)
+                score_down = score(tree_map[i][j], down)
+                tree_score = score_left * score_right * score_up * score_down
+                if tree_score > scenic_score:
+                    scenic_score = tree_score
+    return scenic_score
+
+
+print("Part Two: " + str(part_two(tree_map)))
+# print("Part Two: " + str(part_two([[3,0,3,7,3], [2,5,5,1,2], [6,5,3,3,2], [3,3,5,4,9], [3,5,3,9,0]])))
