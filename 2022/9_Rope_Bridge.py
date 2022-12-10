@@ -261,7 +261,7 @@
 #
 # Simulate your complete hypothetical series of motions. How many positions does the tail of the rope visit
 # at least once?
-
+import math
 from os import path
 import sys
 
@@ -274,6 +274,10 @@ with open(path.join(sys.path[0], "input\\9_Rope_Bridge.txt")) as f:
         direction = line[0]
         distance = int(line[1])
         moves.append([direction, distance])
+
+
+def dist(head_row, head_col, tail_row, tail_col):
+    return int(math.sqrt((head_row - tail_row)**2 + (head_col - tail_col)**2))
 
 
 def part_one(moves):
@@ -291,40 +295,32 @@ def part_one(moves):
             else:
                 head_col += 1
 
-            # if not (head_row - 1 <= tail_row <= head_row + 1 and head_col - 1 <= tail_col <= head_col + 1):
-            if head_row == tail_row:
-                if head_col < tail_col:
-                    tail_col = head_col + 1
-                else:
-                    tail_col = head_col - 1
-                # head_col > tail_col
-            elif head_col == tail_col:
-                if head_row < tail_row:
-                    tail_row = head_row + 1
-                else:
-                    tail_row = head_row - 1
-                # head_row > tail_row
-            else:
-                if head_row == tail_row - 1 or head_row == tail_row + 1:
-                    if head_col > tail_col + 1:
-                        tail_row = head_row
-                        tail_col = head_col - 1
-                    elif head_col < tail_col - 1:
-                        tail_row = head_row
+            if dist(head_row, head_col, tail_row, tail_col) > 1:
+                if head_row == tail_row:
+                    if head_col < tail_col:
                         tail_col = head_col + 1
-                elif head_col == tail_col - 1 or head_col == tail_col + 1:
-                    if head_row > tail_row + 1:
-                        tail_col = head_col
-                        tail_row = head_row - 1
-                    elif head_row < tail_row - 1:
-                        tail_col = head_col
+                    else:
+                        tail_col = head_col - 1
+                elif head_col == tail_col:
+                    if head_row < tail_row:
                         tail_row = head_row + 1
+                    else:
+                        tail_row = head_row - 1
+                else:
+                    if head_row == tail_row - 1 or head_row == tail_row + 1:
+                        tail_row = head_row
+                        if head_col < tail_col:
+                            tail_col = head_col + 1
+                        else:
+                            tail_col = head_col - 1
+                    elif head_col == tail_col - 1 or head_col == tail_col + 1:
+                        tail_col = head_col
+                        if head_row < tail_row:
+                            tail_row = head_row + 1
+                        else:
+                            tail_row = head_row - 1
             visited_positions.add(str(tail_row) + ',' + str(tail_col))
-
-    print(visited_positions)
-    return len(visited_positions) - 1
+    return len(visited_positions)
 
 
-# print("Part One: " + str(part_one([['R', 1], ['U', 2], ['L', 3], ['D', 1], ['R', 4], ['D', 1], ['L', 5], ['R', 2]])))
-print("Part One: " + str(part_one([['R', 4], ['U', 4], ['L', 3], ['D', 1], ['R', 4], ['D', 1], ['L', 5], ['R', 2]])))
-# print("Part One: " + str(part_one(moves))) # 6890
+print("Part One: " + str(part_one(moves))) # 6563
