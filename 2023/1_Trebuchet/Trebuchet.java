@@ -69,7 +69,58 @@ public class Trebuchet {
         }
     }
 
+    static void partTwo() {
+        try {
+            Scanner sc = new Scanner(new FileInputStream("./2023/1_Trebuchet/input/1_Trebuchet.txt"));
+            String line;
+            int result = 0;
+            String[] definitions = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
+            String[] substitutions = {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
+            while (sc.hasNextLine()) {
+                line = sc.nextLine();
+
+                // For each definition, search it in the line, until no definition is found
+                boolean finish = false;
+                while (!finish) {
+                    finish = true;
+                    int[] posFound = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+                    for (int i = 0; i < definitions.length; i++) {
+                        int pos = line.indexOf(definitions[i]);
+                        if (pos != -1) finish = false;
+                        posFound[i] = pos;
+                    }
+
+                    // Find the earliest occurrence of a definition
+                    int posToSubstitute = -1;
+                    int minValue = Integer.MAX_VALUE;
+                    for (int i = 0; i < posFound.length; i++) {
+                        if (posFound[i] != -1 && posFound[i] < minValue) {
+                            minValue = posFound[i];
+                            posToSubstitute = i;
+                        }
+                    }
+                    // Substitute
+                    if (posToSubstitute != -1) {
+                        line = line.replaceFirst(definitions[posToSubstitute], substitutions[posToSubstitute]);
+                    }
+                }
+
+                line = line.replaceAll("[a-zA-Z]+", "");
+                if (line.length() == 1) {
+                    line += line.charAt(0);
+                } else if (line.length() != 2) {
+                    line = "" + line.charAt(0) + line.charAt(line.length() - 1);
+                }
+                result += Integer.parseInt(line);
+            }
+            System.out.println(result);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String[] args) {
         partOne();
+        partTwo();
     }
 }
