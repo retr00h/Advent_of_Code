@@ -89,7 +89,7 @@ public class Cube_Conundrum {
                         }
                     }
                 }
-                if (red <= 12 && blue <= 13 && green <= 14) result += id;
+                if (red <= 12 && green <= 13 && blue <= 14) result += id;
             }
             System.out.println(result);
         } catch (Exception ignored) {}
