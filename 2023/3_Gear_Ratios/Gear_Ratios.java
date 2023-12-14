@@ -77,7 +77,7 @@ class Gear_Ratios {
             int result = 0;
             while (matcher.find()) {
                 int start = matcher.start();
-                int end = matcher.end();
+                int end = matcher.end() - 1;
                 boolean isNeighbor = false;
 
                 int row = start / lineLength;
