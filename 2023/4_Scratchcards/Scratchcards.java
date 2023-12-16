@@ -149,7 +149,6 @@ public class Scratchcards {
         try {
             Scanner sc = new Scanner(new FileInputStream("./2023/4_Scratchcards/input/4_Scratchcards.txt"));
             String line;
-            int result = 0;
             List<Card> cards = new ArrayList<Card>();
             while (sc.hasNextLine()) {
                 line = sc.nextLine();
