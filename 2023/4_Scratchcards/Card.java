@@ -14,11 +14,9 @@ public class Card {
         for (int n : numbers) this.numbers.add(n);
         for (int n : winningNumbers) this.winningNumbers.add(n);
     }
-    public boolean addWinningNumber(int number) {
-        return winningNumbers.add(number);
-    }
-    public boolean addNumber(int number) {
-        return numbers.add(number);
+
+    public int getId() {
+        return id;
     }
 
     public List<Integer> getNumbersThatAreWinningNumbers() {
