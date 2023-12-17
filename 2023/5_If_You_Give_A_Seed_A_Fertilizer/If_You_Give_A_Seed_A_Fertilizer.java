@@ -148,23 +148,14 @@ What is the lowest location number that corresponds to any of the initial
 seed numbers?
 */
 
-import jdk.internal.util.xml.impl.Input;
-
-import java.io.FileInputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
 
 public class If_You_Give_A_Seed_A_Fertilizer {
     public static void partOne() {
-        long[] seeds = InputReader.getSeeds();
-        long minSeed = Long.MAX_VALUE;
-        for (long seed : seeds) {
-            long tmp = InputReader.getSeedToLocation(seed);
-            if (tmp < minSeed) minSeed = tmp;
-        }
-        System.out.println(minSeed);
+        Solver solver = new Solver();
+        long[] locations = solver.getLocations();
+        System.out.println(Arrays.toString(locations));
+        System.out.println(Arrays.stream(locations).min().getAsLong());
     }
     public static void main(String[] args) {
         partOne();
