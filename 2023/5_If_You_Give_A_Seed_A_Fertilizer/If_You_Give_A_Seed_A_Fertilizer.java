@@ -154,7 +154,6 @@ public class If_You_Give_A_Seed_A_Fertilizer {
     public static void partOne() {
         Solver solver = new Solver();
         long[] locations = solver.getLocations();
-        System.out.println(Arrays.toString(locations));
         System.out.println(Arrays.stream(locations).min().getAsLong());
     }
     public static void main(String[] args) {
