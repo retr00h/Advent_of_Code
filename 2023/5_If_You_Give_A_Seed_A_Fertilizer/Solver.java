@@ -92,4 +92,31 @@ public class Solver {
         }
         return locations;
     }
+
+    public long getMinLocationWithSeedsAsRanges() {
+        long[] lowerBounds = new long[seeds.length / 2];
+        long[] lengths = new long[seeds.length / 2];
+        long[] upperBounds = new long[seeds.length / 2];
+        for (int i = 0; i < seeds.length - 1; i += 2) {
+            lowerBounds[i / 2] = seeds[i];
+            lengths[i / 2] = seeds[i + 1];
+            upperBounds[i / 2] = lowerBounds[i / 2] + lengths[i / 2];
+        }
+
+        long minLocation = Long.MAX_VALUE;
+        ProgressBar pb = new ProgressBar(0, lowerBounds.length);
+        for (int i = 0; i < lowerBounds.length; i++) {
+            long startTime = System.currentTimeMillis();
+            for (long seed = lowerBounds[i]; seed <= upperBounds[i]; seed++) {
+                pb.print(false);
+                long location = seedToLocation(seed);
+                if (location < minLocation) minLocation = location;
+            }
+            pb.incrementDone();
+            pb.addTime(startTime);
+            pb.print(false);
+        }
+        pb.print(true);
+        return minLocation;
+    }
 }
