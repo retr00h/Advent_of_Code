@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,19 +9,21 @@ public class ProgressBar {
     private final long totalSteps;
     private final List<Long> times = new ArrayList<Long>();
     private double averageStepTime = .0;
-    private double eta = .0;
+    private final long startTime = System.currentTimeMillis();
     private long lastPrint = 0;
     public ProgressBar(int currentStep, int totalSteps) {
         this.currentStep = currentStep;
         this.totalSteps = totalSteps;
     }
-    private void updateAverageStepTime() {
-        this.averageStepTime = this.times.stream().mapToLong(Long::longValue).average().getAsDouble();
-    }
     public void stepCompleted() {
-        this.times.add(System.currentTimeMillis());
+        long lastTime = System.currentTimeMillis();
+        if (times.isEmpty()) times.add(lastTime - startTime);
+        else times.add(System.currentTimeMillis() - lastTime);
         this.currentStep++;
         this.updateAverageStepTime();
+    }
+    private void updateAverageStepTime() {
+        averageStepTime = times.stream().mapToLong(Long::longValue).average().getAsDouble();
     }
     private char getAnim() {
         return ANIMATION_CHARACTERS[animationCounter++ % ANIMATION_CHARACTERS.length];
@@ -38,19 +41,29 @@ public class ProgressBar {
                 else sb.append(" ");
             }
         }
-        sb.append("] (").append(percentage).append(" / ").append(this.totalSteps).append(") ");
-        if (!this.times.isEmpty()) {
-            double timeLeft = (10 - percentage) * this.averageStepTime;
-            sb.append("ETA: ").append(timeLeft).append(" seconds");
+        sb.append("]");
+        if (!times.isEmpty()) {
+            double timeLeft = (10 - percentage) * averageStepTime / 1000;
+            sb.append(" (").append(formatTime((System.currentTimeMillis() - startTime) / 1000.0))
+                    .append(" - ").append(formatTime(timeLeft)).append(")");
         }
         sb.append('\r');
         return String.valueOf(sb);
     }
     public void print(boolean endLine) {
-        if (System.currentTimeMillis() >= this.lastPrint + 500) {
-            this.lastPrint = System.currentTimeMillis();
-            System.out.print(this.getString());
+        if (System.currentTimeMillis() >= lastPrint + 500) {
+            lastPrint = System.currentTimeMillis();
+            System.out.print(getString());
         }
         if (endLine) System.out.print("\n");
+    }
+    private String formatTime(double time) {
+        long minutes = (long) (time / 60);
+        long seconds = (long) (time % 60);
+        return pad(minutes) + ":" + pad(seconds);
+    }
+    private String pad(long n) {
+        if (n < 10) return "0" + n;
+        return "" + n;
     }
 }
