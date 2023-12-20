@@ -112,8 +112,8 @@ public class Solver {
                 long location = seedToLocation(seed);
                 if (location < minLocation) minLocation = location;
             }
-            pb.incrementDone();
-            pb.addTime(startTime);
+            pb.stepCompleted();
+//            pb.addTime(startTime);
             pb.print(false);
         }
         pb.print(true);
