@@ -9,6 +9,7 @@ public class ProgressBar {
     private final long totalSteps;
     private final List<Long> times = new ArrayList<Long>();
     private double averageStepTime = .0;
+    private double timeLeft = .0;
     private final long startTime = System.currentTimeMillis();
     private long lastPrint = 0;
     public ProgressBar(int currentStep, int totalSteps) {
@@ -16,14 +17,16 @@ public class ProgressBar {
         this.totalSteps = totalSteps;
     }
     public void stepCompleted() {
-        long lastTime = System.currentTimeMillis();
-        if (times.isEmpty()) times.add(lastTime - startTime);
-        else times.add(System.currentTimeMillis() - lastTime);
+        long now = System.currentTimeMillis();
+        if (times.isEmpty()) times.add(now - startTime);
+        else times.add(System.currentTimeMillis() - now);
         this.currentStep++;
-        this.updateAverageStepTime();
+        this.updateAverageStepTimeAndTimeLeft();
     }
-    private void updateAverageStepTime() {
+    private void updateAverageStepTimeAndTimeLeft() {
         averageStepTime = times.stream().mapToLong(Long::longValue).average().getAsDouble();
+        long percentage = 10 * currentStep / totalSteps;
+        timeLeft = (10 - percentage) * averageStepTime / 1000;
     }
     private char getAnim() {
         return ANIMATION_CHARACTERS[animationCounter++ % ANIMATION_CHARACTERS.length];
@@ -42,11 +45,13 @@ public class ProgressBar {
             }
         }
         sb.append("]");
-        if (!times.isEmpty()) {
-            double timeLeft = (10 - percentage) * averageStepTime / 1000;
-            sb.append(" (").append(formatTime((System.currentTimeMillis() - startTime) / 1000.0))
-                    .append(" - ").append(formatTime(timeLeft)).append(")");
-        }
+        double elapsedTime = (System.currentTimeMillis() - startTime) / 1000.0;
+        sb.append(" ").append(formatTime(elapsedTime));
+//        if (!times.isEmpty()) {
+//                    sb.append(" - ")
+//                    .append(formatTime(averageStepTime / 1000.0))
+//                    .append("/iteration on average");
+//        }
         sb.append('\r');
         return String.valueOf(sb);
     }
@@ -58,6 +63,7 @@ public class ProgressBar {
         if (endLine) System.out.print("\n");
     }
     private String formatTime(double time) {
+        if (time < 0) time = 0;
         long minutes = (long) (time / 60);
         long seconds = (long) (time % 60);
         return pad(minutes) + ":" + pad(seconds);
