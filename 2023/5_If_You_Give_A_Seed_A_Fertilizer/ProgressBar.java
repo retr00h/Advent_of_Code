@@ -1,37 +1,40 @@
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProgressBar {
-    private static char[] ANIMATION_CHARACTERS = {'\\','|','/','-'};
+public class ProgressBar extends Thread {
+    private static final char[] ANIMATION_CHARACTERS = {'\\','|','/','-'};
     private static int animationCounter = 0;
-    private long currentStep;
     private final long totalSteps;
-    private final List<Long> times = new ArrayList<Long>();
-    private double averageStepTime = .0;
-    private double timeLeft = .0;
     private final long startTime = System.currentTimeMillis();
+    private final List<Long> times = new ArrayList<Long>();
+    private long currentStep;
     private long lastPrint = 0;
-    public ProgressBar(int currentStep, int totalSteps) {
+    private boolean terminate = false;
+    public ProgressBar(long currentStep, long totalSteps) {
         this.currentStep = currentStep;
         this.totalSteps = totalSteps;
+        new Thread(this).start();
     }
-    public void stepCompleted() {
+    public ProgressBar(long totalSteps) {
+        this.currentStep = 0;
+        this.totalSteps = totalSteps;
+        new Thread(this).start();
+    }
+    public synchronized void completeStep() {
         long now = System.currentTimeMillis();
         if (times.isEmpty()) times.add(now - startTime);
         else times.add(System.currentTimeMillis() - now);
-        this.currentStep++;
-        this.updateAverageStepTimeAndTimeLeft();
+        currentStep++;
+//        updateAverageStepTimeAndTimeLeft();
     }
-    private void updateAverageStepTimeAndTimeLeft() {
-        averageStepTime = times.stream().mapToLong(Long::longValue).average().getAsDouble();
-        long percentage = 10 * currentStep / totalSteps;
-        timeLeft = (10 - percentage) * averageStepTime / 1000;
+    private synchronized void print(boolean endLine, boolean force) {
+        if (force || System.currentTimeMillis() >= lastPrint + 500) {
+            lastPrint = System.currentTimeMillis();
+            System.out.print(getString());
+        }
+        if (endLine) System.out.print("\n");
     }
-    private char getAnim() {
-        return ANIMATION_CHARACTERS[animationCounter++ % ANIMATION_CHARACTERS.length];
-    }
-    private String getString() {
+    private synchronized String getString() {
         StringBuilder sb = new StringBuilder("[");
         long percentage = 10 * currentStep / totalSteps;
         for (int i = 0; i < 10; i++) {
@@ -47,20 +50,8 @@ public class ProgressBar {
         sb.append("]");
         double elapsedTime = (System.currentTimeMillis() - startTime) / 1000.0;
         sb.append(" ").append(formatTime(elapsedTime));
-//        if (!times.isEmpty()) {
-//                    sb.append(" - ")
-//                    .append(formatTime(averageStepTime / 1000.0))
-//                    .append("/iteration on average");
-//        }
         sb.append('\r');
         return String.valueOf(sb);
-    }
-    public void print(boolean endLine) {
-        if (System.currentTimeMillis() >= lastPrint + 500) {
-            lastPrint = System.currentTimeMillis();
-            System.out.print(getString());
-        }
-        if (endLine) System.out.print("\n");
     }
     private String formatTime(double time) {
         if (time < 0) time = 0;
@@ -71,5 +62,29 @@ public class ProgressBar {
     private String pad(long n) {
         if (n < 10) return "0" + n;
         return "" + n;
+    }
+    private synchronized char getAnim() {
+        return ANIMATION_CHARACTERS[animationCounter++ % ANIMATION_CHARACTERS.length];
+    }
+    @Override
+    public synchronized void start() {
+        super.start();
+        print(false, false);
+    }
+    @Override
+    public void run() {
+        super.run();
+        while (!terminate) {
+            print(false, false);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    public synchronized void end() {
+        print(true, true);
+        terminate = true;
     }
 }

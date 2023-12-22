@@ -104,19 +104,21 @@ public class Solver {
         }
 
         long minLocation = Long.MAX_VALUE;
-        ProgressBar pb = new ProgressBar(0, lowerBounds.length);
+        ProgressBar pb = new ProgressBar(lowerBounds.length);
         for (int i = 0; i < lowerBounds.length; i++) {
-            long startTime = System.currentTimeMillis();
             for (long seed = lowerBounds[i]; seed <= upperBounds[i]; seed++) {
-                pb.print(false);
                 long location = seedToLocation(seed);
                 if (location < minLocation) minLocation = location;
             }
-            pb.stepCompleted();
-//            pb.addTime(startTime);
-            pb.print(false);
+            pb.completeStep();
         }
-        pb.print(true);
+        pb.end();
+        try {
+            pb.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         return minLocation;
     }
 }
