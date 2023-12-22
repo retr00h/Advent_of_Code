@@ -115,9 +115,7 @@ public class Solver {
         pb.end();
         try {
             pb.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        } catch (InterruptedException ignored) {}
 
         return minLocation;
     }

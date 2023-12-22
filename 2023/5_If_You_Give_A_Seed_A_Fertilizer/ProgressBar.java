@@ -6,26 +6,18 @@ public class ProgressBar extends Thread {
     private static int animationCounter = 0;
     private final long totalSteps;
     private final long startTime = System.currentTimeMillis();
-    private final List<Long> times = new ArrayList<Long>();
     private long currentStep;
     private long lastPrint = 0;
+    private double toSubtract = 0;
+    private double timeLeft = 0.0;
     private boolean terminate = false;
-    public ProgressBar(long currentStep, long totalSteps) {
-        this.currentStep = currentStep;
-        this.totalSteps = totalSteps;
-        new Thread(this).start();
-    }
     public ProgressBar(long totalSteps) {
         this.currentStep = 0;
         this.totalSteps = totalSteps;
         new Thread(this).start();
     }
     public synchronized void completeStep() {
-        long now = System.currentTimeMillis();
-        if (times.isEmpty()) times.add(now - startTime);
-        else times.add(System.currentTimeMillis() - now);
-        currentStep++;
-//        updateAverageStepTimeAndTimeLeft();
+        timeLeft = (System.currentTimeMillis() - startTime) * (totalSteps - ++currentStep) / 1000.0;
     }
     private synchronized void print(boolean endLine, boolean force) {
         if (force || System.currentTimeMillis() >= lastPrint + 500) {
@@ -50,6 +42,8 @@ public class ProgressBar extends Thread {
         sb.append("]");
         double elapsedTime = (System.currentTimeMillis() - startTime) / 1000.0;
         sb.append(" ").append(formatTime(elapsedTime));
+        sb.append(" - ").append(formatTime(timeLeft - toSubtract));
+        sb.append(" - ").append(formatIts(currentStep / elapsedTime)).append(" it/s");
         sb.append('\r');
         return String.valueOf(sb);
     }
@@ -63,6 +57,9 @@ public class ProgressBar extends Thread {
         if (n < 10) return "0" + n;
         return "" + n;
     }
+    private String formatIts(double its) {
+        return String.format("%.2f", its);
+    }
     private synchronized char getAnim() {
         return ANIMATION_CHARACTERS[animationCounter++ % ANIMATION_CHARACTERS.length];
     }
@@ -75,12 +72,11 @@ public class ProgressBar extends Thread {
     public void run() {
         super.run();
         while (!terminate) {
-            print(false, false);
             try {
                 Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            } catch (InterruptedException ignored) {}
+            toSubtract += 0.1;
+            print(false, false);
         }
     }
     public synchronized void end() {
