@@ -42,12 +42,41 @@ and 77. Adding these together produces 142.
 
 Consider your entire calibration document. What is the sum of all of the
 calibration values?
+
+--- Part Two ---
+
+Your calculation isn't quite right. It looks like some of the digits are
+actually spelled out with letters: one, two, three, four, five, six,
+seven, eight, and nine also count as valid "digits".
+
+Equipped with this new information, you now need to find the real first and
+last digit on each line. For example:
+    two1nine
+    eightwothree
+    abcone2threexyz
+    xtwone3four
+    4nineeightseven2
+    zoneight234
+    7pqrstsixteen
+
+In this example, the calibration values are 29, 83, 13, 24, 42, 14, and 76.
+Adding these together produces 281.
+
+What is the sum of all of the calibration values?
 */
+
+#undef TEST
+#define TEST
 
 #include <iostream>
 #include <fstream>
 
-int main() {
+#ifdef TEST
+#include <vector>
+#include <sstream>
+#endif
+
+int partOne() {
     int sum = 0;
     std::string line;
     std::ifstream f;
@@ -64,10 +93,123 @@ int main() {
                 last = c2;
             }
             if (first != -1 && last != -1) break;
-            // TODO: CHECK INDEXES
         }
         sum += (first + last);
     }
-    std::cout << "Part one: " << sum << std::endl;
+    f.close();
+    return sum;
+}
+
+int partTwo() {
+    static std::string conv[9] = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
+    int sum = 0;
+    std::string line;
+    std::ifstream f;
+    f.open("input/1_Trebuchet.txt");
+    while (!f.eof()) {
+        int first = -1, last = -1;
+        std::string tmp;
+        std::size_t found;
+        f >> line;
+
+        for (int i = 0; i < line.length(); i++) {
+            for (int j = 0; j < 3; j++) {
+               tmp = line.substr(i, 3 + j);
+               for (int k = 0; k < 9; k++) {
+                if (tmp == conv[k]) {
+                    line.replace(i, 3 + j, std::to_string(k + 1));
+                    break;
+                }
+               }
+            }
+        }
+
+        for (int i = 0; i < line.length(); i++) {
+            char c1 = line[i] - '0', c2 = line[line.length() - 1 - i] - '0';
+            if (first == -1 && c1 >= 0 && c1 <= 9) {
+                first = 10 * c1;
+            }
+            if (last == -1 && c2 >= 0 && c2 <= 9) {
+                last = c2;
+            }
+            if (first != -1 && last != -1) break;
+        }
+        sum += (first + last);
+
+    }
+    f.close();
+    return sum;
+}
+
+void partTwoTest() {
+    static std::string conv[9] = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
+    int passed = 0, failed = 0;
+    std::vector<int> failedIdx = std::vector<int>();
+    std::string line;
+    std::ifstream f;
+    f.open("input/1_Trebuchet.txt");
+
+    int idx = 0;
+    int elements[50] = {
+        21, 69, 39, 74, 45, 86, 84, 62, 27, 56,
+        32, 51, 75, 73, 48, 18, 23, 35, 17, 66,
+        33, 15, 18, 14, 95, 82, 82, 59, 34, 79,
+        41, 84, 46, 76, 65, 78, 67, 72, 67, 62,
+        68, 45, 25, 14, 66, 55, 93, 44, 13, 29
+    };
+    while (!f.eof()) {
+        int first = -1, last = -1;
+        std::string tmp;
+        std::size_t found;
+        f >> line;
+
+        for (int i = 0; i < line.length(); i++) {
+            for (int j = 0; j < 3; j++) {
+               tmp = line.substr(i, 3 + j);
+               for (int k = 0; k < 9; k++) {
+                if (tmp == conv[k]) {
+                    line.replace(i, 3 + j, std::to_string(k + 1));
+                    break;
+                }
+               }
+            }
+        }
+
+        for (int i = 0; i < line.length(); i++) {
+            char c1 = line[i] - '0', c2 = line[line.length() - 1 - i] - '0';
+            if (first == -1 && c1 >= 0 && c1 <= 9) {
+                first = 10 * c1;
+            }
+            if (last == -1 && c2 >= 0 && c2 <= 9) {
+                last = c2;
+            }
+            if (first != -1 && last != -1) break;
+        }
+        if (idx < 50) {
+            int el = elements[idx++];
+            if (first + last == el) passed++;
+            else {
+                failed++;
+                failedIdx.emplace_back(idx - 1);
+            }
+        }
+    }
+    std::cout << "Passed: " << passed << std::endl;
+    std::cout << "Failed: " << failed << std::endl;
+    if (!failedIdx.empty()) {
+        std::stringstream ss;
+        for (int idx : failedIdx) ss << (std::to_string(idx) + " ");
+        std::cout << "Failed test cases #: " << ss.str() << std::endl;
+    }
+    f.close();
+}
+
+int main() {
+    std::cout << "Part one: " << partOne() << std::endl;
+    #ifdef TEST
+    partTwoTest();
+    #else
+    std::cout << "Part two: " << partTwo() << std::endl;
+    #endif
     return 0;
 }
