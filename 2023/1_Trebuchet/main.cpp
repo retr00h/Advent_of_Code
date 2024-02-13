@@ -71,9 +71,6 @@ What is the sum of all of the calibration values?
 #include <iostream>
 #include <fstream>
 
-#include <vector>
-#include <sstream>
-
 int partOne() {
     int sum = 0;
     std::string line;
