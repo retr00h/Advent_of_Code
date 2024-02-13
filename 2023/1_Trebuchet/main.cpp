@@ -104,20 +104,27 @@ int partTwo() {
     f.open("input/1_Trebuchet.txt");
     while (!f.eof()) {
         int first = -1, last = -1;
-        std::string tmp;
+        std::string tmp, correctLine = "";
         f >> line;
-
-        for (int i = 0; i < 9; i++) {
-            pos = line.find(conv[i]);
-            while (pos != std::string::npos) {
-                line.replace(pos, conv[i].length(), conv[i] + std::to_string(i + 1) + conv[i]);
-                pos = line.find(conv[i], pos + (2 * conv[i].length()) + 1);
+        
+        for (int i = 0; i < line.length(); i++) {
+            if (isalpha(line[i])) {
+                for (int j = 0; j < 3; j++) {
+                    tmp = line.substr(i, 3 + j);
+                    for (int k = 0; k < 9; k++) {
+                        if (tmp == conv[k]) {
+                            correctLine += std::to_string(k + 1);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                correctLine += line[i];
             }
         }
-        auto x = 1;
-
-        for (int i = 0; i < line.length(); i++) {
-            char c1 = line[i] - '0', c2 = line[line.length() - 1 - i] - '0';
+        
+        for (int i = 0; i < correctLine.length(); i++) {
+            char c1 = correctLine[i] - '0', c2 = correctLine[correctLine.length() - 1 - i] - '0';
             if (first == -1 && c1 >= 0 && c1 <= 9) {
                 first = 10 * c1;
             }
