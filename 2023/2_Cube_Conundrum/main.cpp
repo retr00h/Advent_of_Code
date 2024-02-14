@@ -141,7 +141,55 @@ int partOne() {
     return sum;
 }
 
+int partTwo() {
+    int sum = 0;
+    std::ifstream f;
+    std::string line;
+
+    f.open("input/2_Cube_Conundrum.txt");
+    while (!f.eof()) {
+        int red = INT_MIN, green = INT_MIN, blue = INT_MIN;
+        std::getline(f, line);
+
+        // Ignores the "Game: " part of the string
+        line = line.substr(line.find(": ") + 2);
+        int semiColonPos = line.find("; ");
+        while (line != "") {
+            std::string round = line.substr(0, semiColonPos);
+            // Next relevant part of the string starts 2
+            // positions after "; "
+            if (semiColonPos == std::string::npos) line = "";
+            else line = line.substr(semiColonPos + 2);
+            int commaPos = round.find(", ");
+            while (round != "") {
+                std::string amountAndColor = round.substr(0, commaPos);
+                if (commaPos == std::string::npos) round = "";
+                else round = round.substr(commaPos + 2);
+                int spacePos = amountAndColor.find(' ');
+                int n = std::stoi(amountAndColor.substr(0, spacePos));
+                std::string color = amountAndColor.substr(spacePos + 1);
+
+                if (color == "red") {
+                    if (n > red) red = n;
+                } else if (color == "green") {
+                    if (n > green) green = n;
+                } else if (color == "blue") {
+                    if (n > blue) blue = n;
+                }
+
+                commaPos = round.find(", ");
+            }
+            semiColonPos = line.find("; ");
+        }
+
+        sum += (red * green * blue);
+    }
+    f.close();
+    return sum;
+}
+
 int main() {
     std::cout << "Part one: " << partOne() << std::endl;
+    std::cout << "Part Two: " << partTwo() << std::endl;
     return 0;
 }
