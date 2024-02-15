@@ -122,6 +122,47 @@ total scratchcards do you end up with?
 #include <set>
 #include <regex>
 
+class Scratchcard {
+    private:
+        std::set<int> winningNumbers;
+        std::set<int> numbers;
+
+    public:
+        Scratchcard() {
+
+        }
+
+        void addWinningNumber(int n) {
+            winningNumbers.insert(n);
+        }
+
+        void addNumber(int n) {
+            numbers.insert(n);
+        }
+
+        int howManyNumbersAreWinningNumbers() {
+            int res = 0;
+            for (int n : numbers) {
+                if (winningNumbers.find(n) != winningNumbers.end()) res += 1;
+            }
+            return res;
+        }
+
+        std::set<int> getWinningNumbers() {
+            return winningNumbers;
+        }
+
+        std::set<int> getMatchingNumbers() {
+            std::set<int> matchingNumbers;
+            for (int n : numbers) {
+                if (winningNumbers.count(n) == 1) {
+                    matchingNumbers.insert(n);
+                }
+            }
+            return matchingNumbers;
+        }
+};
+
 int partOne() {
     std::ifstream f;
     std::string line;
@@ -134,20 +175,20 @@ int partOne() {
         int delim = line.find(" | ");
         std::string winningNumbersStr = line.substr(0, delim);
         std::string numbersStr = line.substr(delim + 3);
-        std::set<int> winningNumbers;
         std::regex re("\\d+");
         std::sregex_iterator winningNumbersIter(winningNumbersStr.begin(), winningNumbersStr.end(), re);
         std::sregex_iterator numbersIter(numbersStr.begin(), numbersStr.end(), re);
         std::sregex_iterator end;
+        Scratchcard sc;
 
         while (winningNumbersIter != end) {
-            winningNumbers.insert(std::stoi(winningNumbersIter->str()));
+            sc.addWinningNumber(std::stoi(winningNumbersIter->str()));
             ++winningNumbersIter;
         }
 
         while (numbersIter != end) {
             int n = std::stoi(numbersIter->str());
-            if (winningNumbers.find(n) != winningNumbers.end()) {
+            if (sc.getWinningNumbers().count(n) != 0) {
                 if (res == 0) res = 1;
                 else res *= 2;
             }
@@ -161,9 +202,49 @@ int partOne() {
 
 int partTwo() {
     std::ifstream f;
+    std::string line;
+    std::vector<Scratchcard> scratchcards;
     f.open("input/4_Scratchcards.txt");
+    while (!f.eof()) {
+        int res = 0;
+        std::getline(f, line);
+        line = line.substr(line.find(": ") + 2);
+        int delim = line.find(" | ");
+        std::string winningNumbersStr = line.substr(0, delim);
+        std::string numbersStr = line.substr(delim + 3);
+        std::regex re("\\d+");
+        std::sregex_iterator winningNumbersIter(winningNumbersStr.begin(), winningNumbersStr.end(), re);
+        std::sregex_iterator numbersIter(numbersStr.begin(), numbersStr.end(), re);
+        std::sregex_iterator end;
+        Scratchcard sc;
+
+        while (winningNumbersIter != end) {
+            sc.addWinningNumber(std::stoi(winningNumbersIter->str()));
+            ++winningNumbersIter;
+        }
+
+        while (numbersIter != end) {
+            sc.addNumber(std::stoi(numbersIter->str()));
+            ++numbersIter;
+        }
+        scratchcards.emplace_back(sc);
+    }
     f.close();
-    return -1;
+
+    int copies[scratchcards.size()];
+    for (int i = 0; i < scratchcards.size(); i++) copies[i] = 1;
+
+    for (int i = 0; i < scratchcards.size(); i++) {
+        int nextScratchcardsToIncrement = scratchcards[i].getMatchingNumbers().size();
+        while (nextScratchcardsToIncrement > 0) {
+            copies[i + nextScratchcardsToIncrement] += copies[i];
+            nextScratchcardsToIncrement--;
+        }
+    }
+
+    int sum = 0;
+    for (int n : copies) sum += n;
+    return sum;
 }
 
 
