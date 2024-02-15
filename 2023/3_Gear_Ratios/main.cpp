@@ -140,6 +140,10 @@ class Position {
         bool isNeighbor(Position other) {
             return isNeighbor(other.getRow(), other.getStartCol());
         }
+
+        bool operator!=(const Position other) {
+            return !(this->start == other.start && this->end == other.end);
+        }
 };
 
 int Position::lineLength = -1;
@@ -169,7 +173,7 @@ int partOne() {
 
     while (iterSymbols != end) {
         symbols.insert(mat[iterSymbols->position()]);
-        symbolsPositions.emplace_back(Position(-1, iterSymbols->position(), iterSymbols->position()));
+        symbolsPositions.emplace_back(Position(iterSymbols->str()[0], iterSymbols->position(), iterSymbols->position()));
         ++iterSymbols;
     }
 
@@ -177,18 +181,12 @@ int partOne() {
         int start = iterDigits->position(), end = start + iterDigits->length() - 1;
         bool isNeighbor = false;
         Position digitPos = Position(std::stoi(iterDigits->str()), start, end);
-
-        // int row = start / lineLength;
-        // int colStart = start % lineLength;
-        // int colEnd = end % lineLength;
-
         for (Position pos : symbolsPositions) {
             if (digitPos.isNeighbor(pos)) {
                 isNeighbor = true;
                 break;
             }
         }
-
         if(isNeighbor) result += std::stoi(iterDigits->str());
         ++iterDigits;
     }
@@ -196,8 +194,49 @@ int partOne() {
 }
 
 int partTwo() {
+    std::string mat = "", line;
+    std::ifstream f;
+    int lineLength = -1, result = 0;
+    f.open("input/3_Gear_Ratios.txt");
+    while (!f.eof()) {
+        f >> line;
+        if (lineLength == -1) lineLength = line.length();
+        mat += line;
+    }
+    f.close();
+
+    Position::setLineLength(lineLength);
     
-    return -1;
+    std::regex reDigits("\\d+");
+    std::regex reSymbols("[*]+");
+    std::sregex_iterator iterDigits(mat.begin(), mat.end(), reDigits);
+    std::sregex_iterator iterSymbols(mat.begin(), mat.end(), reSymbols);
+    std::sregex_iterator end;
+
+    std::vector<Position> digitsPositions;
+
+    while (iterDigits != end) {
+        int start = iterDigits->position(), end = start + iterDigits->length() - 1;
+        digitsPositions.emplace_back(Position(std::stoi(iterDigits->str()), start, end));
+        ++iterDigits;
+    }
+
+    while (iterSymbols != end) {
+        Position pos = Position(iterSymbols->str()[0], iterSymbols->position(), iterSymbols->position());
+        bool neighborFound = false;
+        for (Position p1 : digitsPositions) {
+            if (neighborFound) break;
+            for (Position p2 : digitsPositions) {
+                if (p1 != p2 && p1.isNeighbor(pos) && p2.isNeighbor(pos)) {
+                    neighborFound = true;
+                    result += p1.getValue() * p2.getValue();
+                    break;
+                } 
+            }
+        }
+        ++iterSymbols;
+    }
+    return result;
 }
 
 int main() {
