@@ -101,42 +101,48 @@ class Position {
     
     public:
         static void setLineLength(int l) {
-            lineLength = lineLength;
+            lineLength = l;
         }
 
         Position(int v, int s, int e) : value(v), start(s), end(e) {}
 
-    int getValue() {
-        return value;
-    }
-        
-    int getStart() {
-        return start;
-    }
-
-    int getEnd() {
-        return end;
-    }
-
-    int getRow() {
-        return start / lineLength;
-    }
-
-    int getStartCol() {
-        return start % lineLength;
-    }
-
-    int getEndCol() {
-        return end % lineLength;
-    }
-
-    bool isNeighbor(int row, int col) {
-        if (row == getRow() || row == getRow() - 1 || row == getRow() + 1) {
-            return col >= getStartCol() - 1 && col <= getEndCol() + 1;
+        int getValue() {
+            return value;
         }
-        return false;
-    }
+            
+        int getStart() {
+            return start;
+        }
+
+        int getEnd() {
+            return end;
+        }
+
+        int getRow() {
+            return start / lineLength;
+        }
+
+        int getStartCol() {
+            return start % lineLength;
+        }
+
+        int getEndCol() {
+            return end % lineLength;
+        }
+
+        bool isNeighbor(int row, int col) {
+            if (row == getRow() || row == getRow() - 1 || row == getRow() + 1) {
+                return col >= getStartCol() - 1 && col <= getEndCol() + 1;
+            }
+            return false;
+        }
+
+        bool isNeighbor(Position other) {
+            return isNeighbor(other.getRow(), other.getStartCol());
+        }
 };
+
+int Position::lineLength = -1;
 
 int partOne() {
     std::string mat = "", line;
@@ -149,6 +155,8 @@ int partOne() {
         mat += line;
     }
     f.close();
+
+    Position::setLineLength(lineLength);
     
     std::regex reDigits("\\d+");
     std::regex reSymbols("[^0-9.]+");
@@ -157,36 +165,31 @@ int partOne() {
     std::sregex_iterator end;
 
     std::set<char> symbols;
-    std::vector<int> symbolsPositions;
+    std::vector<Position> symbolsPositions;
 
-    auto x = iterSymbols->position();
     while (iterSymbols != end) {
         symbols.insert(mat[iterSymbols->position()]);
-        symbolsPositions.emplace_back(iterSymbols->position());
+        symbolsPositions.emplace_back(Position(-1, iterSymbols->position(), iterSymbols->position()));
         ++iterSymbols;
     }
 
     while (iterDigits != end) {
-        int start = iterDigits->position(), end = start + iterDigits->length();
+        int start = iterDigits->position(), end = start + iterDigits->length() - 1;
         bool isNeighbor = false;
+        Position digitPos = Position(std::stoi(iterDigits->str()), start, end);
 
-        int row = start / lineLength;
-        int colStart = start % lineLength;
-        int colEnd = end % lineLength;
+        // int row = start / lineLength;
+        // int colStart = start % lineLength;
+        // int colEnd = end % lineLength;
 
-        for (int pos : symbolsPositions) {
-            int x = pos / lineLength;
-            int y = pos % lineLength;
-            if (x == row || x == row - 1 || x == row + 1) {
-                if (y >= colStart - 1 && y <= colEnd + 1) {
-                    isNeighbor = true;
-                    break;
-                }
+        for (Position pos : symbolsPositions) {
+            if (digitPos.isNeighbor(pos)) {
+                isNeighbor = true;
+                break;
             }
         }
 
         if(isNeighbor) result += std::stoi(iterDigits->str());
-        
         ++iterDigits;
     }
     return result;
