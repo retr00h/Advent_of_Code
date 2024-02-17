@@ -151,7 +151,7 @@ seed numbers?
 
 Everyone will starve if you only plant such a small number of seeds. Re-
 reading the almanac, it looks like the seeds: line actually describes
-range sof seed numbers.
+ranges of seed numbers.
 
 The values on the initial seeds: line come in pairs. Within each pair, the
 first value is the start of the range and the second value is the length of
@@ -177,6 +177,10 @@ line of the almanac. What is the lowest location number that corresponds to
 any of the initial seed numbers?
 */
 
+
+#undef OPTIMIZE
+#define OPTIMIZE
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -199,36 +203,11 @@ class Range {
               destinationEnd(dstStart + len),
               length(len) {}
 
-        // Copy constructor
-        // Range(const Range &other):
-        //       sourceStart(other.sourceStart),
-        //       sourceEnd(other.sourceEnd),
-        //       destinationStart(other.destinationStart),
-        //       destinationEnd(other.destinationEnd),
-        //       length(other.length) {}
-
-        // // Move Constructor
-        // Range(Range &&other) noexcept :
-        //     sourceStart(other.sourceStart),
-        //     sourceEnd(other.sourceEnd),
-        //     destinationStart(other.destinationStart),
-        //     destinationEnd(other.destinationEnd),
-        //     length(other.length) {}
-
-        // const Range operator=(const Range &other) const {
-        //     return Range(other);
-        // }
-
         const bool operator==(const Range &other) const {
             return sourceStart == other.sourceStart &&
                    destinationStart == other.destinationStart &&
                    length == other.length;
         }
-
-        // const bool operator!=(const Range &other) const {
-        //     return !(*this == other);
-        // }
-
         const bool operator>(const Range &other) const {
             return destinationStart > other.destinationStart;
         }
@@ -252,38 +231,6 @@ class Range {
                 return src;
             }
         }
-        
-        const Range merge(const Range &other) const {
-            if (contiguous(other)) {
-                if (*this == other) return *this;
-                else {
-                    if (*this > other) {
-                        return Range(other.sourceStart, destinationEnd, length + other.length);
-                    } else {
-                        return Range(sourceStart, other.destinationEnd, length + other.length);
-                    }
-                    
-                }
-            } else {
-                throw std::runtime_error("Ranges are not contiguous");
-            }
-        }
-
-        static const Range merge(const std::set<Range> &ranges) {
-            if (ranges.size() == 1) return *(ranges.begin());
-            else {
-                std::set<Range>::iterator iter = ranges.begin();
-                // std::set<Range>::iterator end;
-                Range merged = *iter;
-                ++iter;
-                while (iter != ranges.end()) {
-                    merged = merged.merge(*iter);
-                    ++iter;
-                }
-                return merged;
-            }
-        }
-        
 };
 
 
@@ -347,26 +294,80 @@ int partOne() {
 }
 
 int partTwo() {
+    std::ifstream f;
+    std::string line;
+    std::vector<unsigned long long> seeds;
+    std::vector<unsigned long long> lengths;
+    std::set<Range> seedToSoil, soilToFertilizer, fertilizerToWater,
+                    waterToLight, lightToTemperature, temperatureToHumidity,
+                    humidityToLocation;
+    f.open("input/5_If_You_Give_A_Seed_A_Fertilizer.txt");
+    // Read seeds line
+    std::getline(f, line);
+    line = line.substr(line.find(": ") + 2);
+    std::regex digitRegex("\\d+");
+    std::sregex_iterator iter(line.begin(), line.end(), digitRegex);
+    std::sregex_iterator end;
+    while (iter != end) {
+        seeds.emplace_back(std::stoull((iter++)->str()));
+        lengths.emplace_back(std::stoull(iter->str()));
+        ++iter;
+    }
 
+    // There are 7 maps
+    std::set<Range> sets[7];
 
-    return -1;
+    // Read blank line
+    std::getline(f, line);
+    // There are 7 maps
+    for (int i = 0; i < 7; i++) {
+        // Read "X-to-Y:" and first relevant line
+        std::getline(f, line);
+        std::getline(f, line);
+        while (line != "") {
+            std::sregex_iterator iter(line.begin(), line.end(), digitRegex);
+            unsigned long long dstStart = std::stoull((iter++)->str());
+            unsigned long long srcStart = std::stoull((iter++)->str());
+            unsigned long long len = std::stoull(iter->str());
+            sets[i].insert(Range(srcStart, dstStart, len));
+            if (!f.eof()) std::getline(f, line);
+            else break;
+        }
+    }
+    f.close();
+
+    unsigned long long lowest = ULLONG_MAX;
+    unsigned long long processedSeeds = 0, seedsToProcess;
+    for (unsigned long long l : lengths) seedsToProcess += l;
+    unsigned long long onePercent = seedsToProcess / 100;
+
+    for (int i = 0; i < seeds.size(); i++) {
+        unsigned long long seed = seeds[i];
+        unsigned long long len = lengths[i];
+        for (int j = 0; j < len; j++) {
+            seed = seed + j;
+            for (int k = 0; k < 7; k++) {
+                for (Range r : sets[k]) {
+                    if (r.inRange(seed)) {
+                        seed = r.srcToDest(seed);
+                        break;
+                    }
+                }
+            }
+            if (seed < lowest) lowest = seed;
+            ++processedSeeds;
+            if (processedSeeds % onePercent == 0) {
+                std::cout << "Processing advanced of 1%" << std::endl;
+            }
+        }
+    }
+
+    return lowest;
 }
 
 int main() {
-    // dstStart, srcStart, len
-    // 0 15 37
-    // 37 52 2
-    // 39 0 15
-
-    /*
-     * 0 to 37
-     * 37 to 39
-     * 39 to 54
-     * 
-     * 
-     */
-
     std::cout << "Part One: " << partOne() << std::endl;
-    std::cout << "Part Two: " << partTwo() << std::endl;
+    std::cout << "Processing Part Two..." << std::endl;
+    std::cout << partTwo() << std::endl;
     return 0;
 }
