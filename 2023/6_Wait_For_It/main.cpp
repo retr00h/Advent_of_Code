@@ -86,6 +86,29 @@
  * 
  * Determine the number of ways you could beat the record in each race. What
  * do you get if you multiply these numbers together?
+ * 
+ * --- Part Two ---
+ * 
+ * As the race is about to start, you realize the piece of paper with race
+ * times and record distances you got earlier actually just has very bad
+ * kerning (https://en.wikipedia.org/wiki/Kerning). There's really only one
+ * race - ignore the spaces between the numbers on each line.
+ * 
+ * So, the example from before:
+ *    Time:      7  15   30
+ *    Distance:  9  40  200
+ * 
+ * ...now instead means this:
+ *    Time:      71530
+ *    Distance:  940200
+ * 
+ * Now, you have to figure out how many ways there are to win this single
+ * race. In this example, the race lasts for 71530 milliseconds and the record
+ * distance you need to beat is 940200 millimeters. You could hold the button
+ * anywhere from 14 to 71516 milliseconds and beat the record, a total of
+ * 71503 ways!
+ * 
+ * How many ways can you beat thte record in this one much longer race?
  */
 
 #include <iostream>
@@ -130,9 +153,34 @@ int partOne() {
     return res;
 }
 
-int partTwo() {
+long long partTwo() {
+    std::ifstream f;
+    std::string line;
+    std::regex digitRegex("\\d+");
+    std::regex spaceRegex("\\s+");
+    long long time, distance;
+    f.open("input/6_Wait_For_It.txt");
 
-    return -1;
+    // Process time line
+    std::getline(f, line);
+    line = std::regex_replace(line, spaceRegex, "");
+    std::sregex_iterator iter(line.begin(), line.end(), digitRegex);
+    time = std::stoll(iter->str());
+
+    // Process distance line
+    std::getline(f, line);
+    line = std::regex_replace(line, spaceRegex, "");
+    iter = std::sregex_iterator(line.begin(), line.end(), digitRegex);
+    distance = std::stoll(iter->str());
+    f.close();
+
+    long long winningOutcomes = 0;
+    for (long long holdTime = 0; holdTime < time; holdTime++) {
+        long long speed = holdTime;
+        long long moveDistance = (time - holdTime) * speed;
+        if (moveDistance > distance) winningOutcomes++;
+    }
+    return winningOutcomes;
 }
 
 int main() {
