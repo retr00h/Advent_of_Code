@@ -458,6 +458,6 @@ int optimizedPartTwo() {
 
 int main() {
     std::cout << "Part One: " << partOne() << std::endl;
-    std::cout << "Part One: " << optimizedPartTwo() << std::endl;
+    std::cout << "Part Two: " << optimizedPartTwo() << std::endl;
     return 0;
 }
