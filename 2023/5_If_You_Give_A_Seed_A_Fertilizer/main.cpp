@@ -220,15 +220,39 @@ class Range {
             return destinationEnd == other.destinationStart; // || destinationStart == other.destinationEnd;
         }
 
-        const bool inRange(const unsigned long long &src) const {
+        const bool inSrcRange(const unsigned long long &src) const {
             return src >= sourceStart && src <= sourceEnd;
         }
 
+        const bool inDstRange(const unsigned long long &dst) const {
+            return dst >= destinationStart && dst <= destinationEnd;
+        }
+
+        const unsigned long long getSourceStart() const {
+            return sourceStart;
+        }
+
+        const unsigned long long getDestinationStart() const {
+            return destinationStart;
+        }
+
+        const unsigned long long getDestinationEnd() const {
+            return destinationEnd;
+        }
+
         const unsigned long long srcToDest(const unsigned long long &src) const {
-            if (inRange(src)) {
+            if (inSrcRange(src)) {
                 return destinationStart + (src - sourceStart);
             } else {
                 return src;
+            }
+        }
+
+        const unsigned long long destToSrc(const unsigned long long &dst) const {
+            if (inDstRange(dst)) {
+                return sourceStart + (dst - destinationStart);
+            } else {
+                return dst;
             }
         }
 };
@@ -281,7 +305,7 @@ int partOne() {
     for (unsigned long long seed : seeds) {
         for (int i = 0; i < 7; i++) {
             for (Range r : sets[i]) {
-                if (r.inRange(seed)) {
+                if (r.inSrcRange(seed)) {
                     seed = r.srcToDest(seed);
                     break;
                 }
@@ -345,16 +369,16 @@ int partTwo() {
         unsigned long long seed = seeds[i];
         unsigned long long len = lengths[i];
         for (int j = 0; j < len; j++) {
-            seed = seed + j;
+            unsigned long long tmp = seed + j;
             for (int k = 0; k < 7; k++) {
                 for (Range r : sets[k]) {
-                    if (r.inRange(seed)) {
-                        seed = r.srcToDest(seed);
+                    if (r.inSrcRange(tmp)) {
+                        tmp = r.srcToDest(tmp);
                         break;
                     }
                 }
             }
-            if (seed < lowest) lowest = seed;
+            if (tmp < lowest) lowest = tmp;
             ++processedSeeds;
             if (processedSeeds % onePercent == 0) {
                 std::cout << "Processing advanced of 1%" << std::endl;
@@ -365,9 +389,75 @@ int partTwo() {
     return lowest;
 }
 
+int optimizedPartTwo() {
+    std::ifstream f;
+    std::string line;
+    std::vector<unsigned long long> seeds;
+    std::vector<unsigned long long> lengths;
+    std::set<Range> seedToSoil, soilToFertilizer, fertilizerToWater,
+                    waterToLight, lightToTemperature, temperatureToHumidity,
+                    humidityToLocation;
+    f.open("input/5_If_You_Give_A_Seed_A_Fertilizer.txt");
+    // Read seeds line
+    std::getline(f, line);
+    line = line.substr(line.find(": ") + 2);
+    std::regex digitRegex("\\d+");
+    std::sregex_iterator iter(line.begin(), line.end(), digitRegex);
+    std::sregex_iterator end;
+    while (iter != end) {
+        seeds.emplace_back(std::stoull((iter++)->str()));
+        lengths.emplace_back(std::stoull(iter->str()));
+        ++iter;
+    }
+
+    // There are 7 maps
+    std::set<Range> sets[7];
+
+    // Read blank line
+    std::getline(f, line);
+    // There are 7 maps
+    for (int i = 0; i < 7; i++) {
+        // Read "X-to-Y:" and first relevant line
+        std::getline(f, line);
+        std::getline(f, line);
+        while (line != "") {
+            std::sregex_iterator iter(line.begin(), line.end(), digitRegex);
+            unsigned long long dstStart = std::stoull((iter++)->str());
+            unsigned long long srcStart = std::stoull((iter++)->str());
+            unsigned long long len = std::stoull(iter->str());
+            sets[i].insert(Range(srcStart, dstStart, len));
+            if (!f.eof()) std::getline(f, line);
+            else break;
+        }
+    }
+    f.close();
+
+    for (unsigned long long dest = 0; dest <= sets[6].begin()->getDestinationStart(); dest++) {
+        unsigned long long seed = dest;
+        for (int i = 6; i >= 0; i--) {
+            for (Range r : sets[i]) {
+                if (r.inDstRange(seed)) {
+                    seed = r.destToSrc(seed);
+                    break;
+                }
+            }
+        }
+        // check if seed in seeds
+        for (int i = 0; i < seeds.size(); i++) {
+            unsigned long long s = seeds[i];
+            unsigned long long len = lengths[i];
+            for (int j = 0; j < len; j++) {
+                if (seed == s + j) {
+                    return dest;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
 int main() {
     std::cout << "Part One: " << partOne() << std::endl;
-    std::cout << "Processing Part Two..." << std::endl;
-    std::cout << partTwo() << std::endl;
+    std::cout << "Part One: " << optimizedPartTwo() << std::endl;
     return 0;
 }
