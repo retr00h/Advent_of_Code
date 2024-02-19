@@ -21,7 +21,7 @@
  * like very large rocks covering half of the horizon. The Elf explains that
  * the rocks are all along the part of Desert Island that is directly above
  * Island Island, making it hard to even get there. Normally, they use big
- * machines to move hte rocks and filter the sand, but hte machines have
+ * machines to move the rocks and filter the sand, but the machines have
  * broken down because Desert Island recently stopped receiving the parts they
  * need to fix the machines.
  * 
@@ -56,11 +56,11 @@
  * stronger than any three of a kind.
  * 
  * If two hands have the same type, a second ordering rule takes effect. Start
- * by comparing hte first card in each hand. If these cards are different, the
- * hand with the stronger first card is considered stronger. If hte first card
+ * by comparing the first card in each hand. If these cards are different, the
+ * hand with the stronger first card is considered stronger. If the first card
  * in each hand have the same label, however, then move on to considering the
  * second card in each hand. If they differ, the hand with the higher second
- * card wins; otherwise, continue with the thrid carc in each hand, then the
+ * card wins; otherwise, continue with the thrid card in each hand, then the
  * fourth, then the fifth.
  * 
  * So, 33332 and 2AAAA are both four of a kind hands, but 33332 is stronger
@@ -82,7 +82,7 @@
  * to the strongest hand. Because there are five hands in this example, the
  * strongest hand will have rank 5 and its bid will be multiplied by 5.
  * 
- * So, the first step is to put hte hands in order of strength:
+ * So, the first step is to put the hands in order of strength:
  *  - 32T3K is the only one pair and the other hands are all a stronger
  *    type, so it gets rank 1.
  *  - KK677 and KTJJT are both two pair. Their first cards both have the
@@ -121,17 +121,21 @@ class Card {
             relativeStrength = RELATIVE_STRENGTH.find(label);
         }
 
+        const bool operator!=(const Card &other) const {
+            return label != other.label;
+        }
+
         const char getLabel() const {
             return label;
         }
 
         // check
-        bool operator < (const Card &other) const {
+        bool operator<(const Card &other) const {
             return relativeStrength < other.relativeStrength;
         }
 
         // check
-        bool operator > (const Card &other) const {
+        bool operator>(const Card &other) const {
             return relativeStrength > other.relativeStrength;
         }
 };
@@ -148,6 +152,7 @@ class Hand {
         Card *cards;
         int next = 0;
         int bid;
+        std::string labels;
         HandType type;
     public:
         Hand() {
@@ -156,26 +161,46 @@ class Hand {
         }
 
         Hand(const int &b) {
+            cards = new Card[5];
+            type = HandType::UNDEFINED;
             bid = b;
         }
 
-        ~Hand() {
-            delete[] cards;
+        // TODO: fix
+        // ~Hand() {
+        //     delete[] cards;
+        // }
+
+        bool operator<(const Hand &other) const {
+            if (type == other.type) {
+                for (int i = 0; i < 5; i++) {
+                    if (cards[i] != other.cards[i]) return cards[i] < other.cards[i];
+                }
+            }
+            return type < other.type;
         }
 
         const void addCard(const Card &c) {
             if (next >= 5) throw std::length_error("Hand is full");
+            labels += c.getLabel();
             cards[next++] = c;
         }
 
         const std::string getLabels() const {
-            std::string labels;
+            return labels;
+        }
+
+        const int getBid() const {
+            return bid;
         }
 
         const std::string getUniqueLabels() const {
-            std::string labels;
-            for (int i = 0; i < 5; i++) labels += cards[i].getLabel();
-            return labels;
+            std::string lbls;
+            for (int i = 0; i < 5; i++) {
+                if (lbls.find(labels[i]) == std::string::npos)
+                lbls += labels[i];
+            }
+            return lbls;
         }
 
         const int getNUniqueLabels() const {
@@ -187,92 +212,56 @@ class Hand {
             if (type != HandType::UNDEFINED) throw std::length_error("Hand type is already defined");
 
             std::string uniqueLabels = getUniqueLabels();
+            int nUniqueLabels = uniqueLabels.size();
             std::string labels = getLabels();
-            switch (uniqueLabels.size()) {
-                case 1:
-                    // All cards have the same label -> FIVE_OF_A_KIND
-                    type = HandType::FIVE_OF_A_KIND;
-                    break;
-                case 2:
-                    // If there are 4 cards with label A and
-                    // 1 card with label B, FOUR_OF_A_KIND, else
-                    // FULL_HOUSE
-                    bool firstFound = false, secondFound = false;
-                    for (char i = 1; i < labels.size(); i++) {
-                        if (labels[i] != uniqueLabels[0]) {
-                            if (firstFound && secondFound) break;
-                            else if (firstFound) secondFound = true;
-                            else firstFound = true;
-                        }
+
+            if (nUniqueLabels == 1) {
+                // All cards have the same label -> FIVE_OF_A_KIND
+                type = HandType::FIVE_OF_A_KIND;
+            } else if (nUniqueLabels == 2) {
+                // If there are 4 cards with label A and
+                // 1 card with label B, FOUR_OF_A_KIND, else
+                // FULL_HOUSE
+                bool firstFound = false, secondFound = false;
+                for (char i = 1; i < labels.size(); i++) {
+                    if (labels[i] != uniqueLabels[0]) {
+                        if (firstFound && secondFound) break;
+                        else if (firstFound) secondFound = true;
+                        else firstFound = true;
                     }
-                    if (firstFound && secondFound) type = HandType::FULL_HOUSE;
-                    else type = HandType::FOUR_OF_A_KIND;
-                    break;
-                case 3:
-                    // THREE_OF_A_KIND: three cards label A label +
-                    //                  two different cards
-                    // TWO_PAIR: two cards label A + 
-                    //           two cards label B +
-                    //           one card label C
-                    char counter[3] = {0, 0, 0};
-                    for (char i = 1; i < labels.size(); i++) {
-                        if (labels[i] == uniqueLabels[0]) counter[0]++;
-                        else if (labels[i] == uniqueLabels[1]) counter[1]++;
-                        else counter[2]++;
-                    }
-                    std::sort(std::begin(counter), std::end(counter));
-                    if (counter[0] == counter[1] == 1) type = HandType::THREE_OF_A_KIND;
-                    else type = HandType::TWO_PAIR;
-                    break;
-                case 4:
-                    type = HandType::ONE_PAIR;
-                    break;
-                case 5:
-                    type = HandType::HIGH_CARD;
-                    break;
-                default:
-                    break;
+                }
+                if (firstFound && secondFound) type = HandType::FULL_HOUSE;
+                else type = HandType::FOUR_OF_A_KIND;
+            } else if (nUniqueLabels == 3) {
+                // THREE_OF_A_KIND: three cards label A label +
+                //                  two different cards
+                // TWO_PAIR: two cards label A + 
+                //           two cards label B +
+                //           one card label C
+                char counter[3] = {0, 0, 0};
+                for (char i = 0; i < labels.size(); i++) {
+                    if (labels[i] == uniqueLabels[0]) counter[0]++;
+                    else if (labels[i] == uniqueLabels[1]) counter[1]++;
+                    else counter[2]++;
+                }
+                std::sort(std::begin(counter), std::end(counter));
+                if (counter[0] == counter[1] == 1) type = HandType::THREE_OF_A_KIND;
+                else type = HandType::TWO_PAIR;
+            } else if (nUniqueLabels == 4) {
+                type = HandType::ONE_PAIR;
+            } else if (nUniqueLabels == 5) {
+                type = HandType::ONE_PAIR;
+            } else {
+                throw std::length_error("Cannot assign a suitable hand type");
             }
         }
-
-
-// Every hand is exactly one type. From strongest to weakest, they are:
-//  - Five of a kind, where all five cards have the same label: AAAAA
-//  - Four of a kind, where four cards have the same label and one card has
-//    a different label: AA8AA
-//  - Full house, where three cards have the same label, and the remaining
-//    two cards share a different label: 23332
-//  - Three of a kind, where three cards have the same label, and the
-//    remaining two cards are each different from any other card in the
-//    hand: TTT98
-//  - Two pair, where two cards share one label, two other cards share a
-//    second label, and the remaining card has a third label: 23432
-//  - One pair, where two cards share one label, and the other three cards
-//    have a different label from the pair and each other: A23A4
-//  - High card, where all cards' labels are distinct: 23456
-// 
-// Hands are primarily ordered based on type; for example, every full house is
-// stronger than any three of a kind.
-// 
-// If two hands have the same type, a second ordering rule takes effect. Start
-// by comparing hte first card in each hand. If these cards are different, the
-// hand with the stronger first card is considered stronger. If hte first card
-// in each hand have the same label, however, then move on to considering the
-// second card in each hand. If they differ, the hand with the higher second
-// card wins; otherwise, continue with the thrid carc in each hand, then the
-// fourth, then the fifth.
-// 
-// So, 33332 and 2AAAA are both four of a kind hands, but 33332 is stronger
-// because its first card is stronger. Similarly, 77888 and 77788 are both a
-// full house, but 77888 is stronger because its third card is stronger (and
-// both hands have the same first and second card).
 
 };
 
 int partOne() {
     std::ifstream f;
     std::string line;
-    std::set<Hand> hands;
+    std::vector<Hand> hands;
     f.open("input/7_Camel_Cards.txt");
     while(!f.eof()) {
         int bid;
@@ -280,11 +269,18 @@ int partOne() {
         f >> bid;
         Hand h(bid);
         for (int i = 0; i < 5; i++) h.addCard(Card(line[i]));
-        hands.insert(h);
+        h.updateType();
+        hands.emplace_back(h);
     }
     f.close();
+    std::sort(hands.begin(), hands.end());
+    int rank = hands.size();
+    int res = 0;
+    for (Hand h : hands) {
+        res += h.getBid() * rank--;
+    }
 
-    return -1;
+    return res;
 }
 
 int partTwo() {
