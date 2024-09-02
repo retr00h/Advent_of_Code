@@ -1,0 +1,10 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskLabel": "attivit\u00E0-1_Trebuchet",
+      "appliesTo": "2023/1_Trebuchet.cs",
+      "type": "launch"
+    }
+  ]
+}

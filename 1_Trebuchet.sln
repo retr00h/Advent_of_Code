@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2023", "2023", "{2A0161BF-7BFF-4A6C-B382-9AEFF3AF0C8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1_Trebuchet", "2023\1_Trebuchet\1_Trebuchet.csproj", "{71A25B9F-0080-43BE-B15E-03A1DDA601A2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{71A25B9F-0080-43BE-B15E-03A1DDA601A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71A25B9F-0080-43BE-B15E-03A1DDA601A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71A25B9F-0080-43BE-B15E-03A1DDA601A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71A25B9F-0080-43BE-B15E-03A1DDA601A2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{71A25B9F-0080-43BE-B15E-03A1DDA601A2} = {2A0161BF-7BFF-4A6C-B382-9AEFF3AF0C8A}
+	EndGlobalSection
+EndGlobal
