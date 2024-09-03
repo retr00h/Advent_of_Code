@@ -46,7 +46,6 @@
  *
  */
 
-using System.IO;
 using System.Text;
 
 const string PATH = "C:\\Users\\fabio\\OneDrive\\Desktop\\Advent_of_Code\\2023\\input\\1_Trebuchet.txt";
