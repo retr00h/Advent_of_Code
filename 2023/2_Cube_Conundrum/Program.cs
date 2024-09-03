@@ -52,13 +52,47 @@
  * with only 12 red cubes, 13 green cubes, and 14 blue cubes. What is the sum
  * of the IDs of those games?
  *
+ * --- Part Two ---
+ *
+ * The Elf says they've stopped producing snow because they aren't getting any
+ * water! He isn't sure why the water stopped, however, he can show you how to
+ * get to the water source to check it out for yourself. It's just up ahead!
+ *
+ * As you continue your walk, the Elf poses a second question: in each game
+ * you played, what is the fewest number of cubes of each color that could
+ * have been in the bag to make the game possible?
+ *
+ * Again consider the example games from earlier:
+ *
+ * Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+ * Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+ * Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+ * Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+ * Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
+ *
+ * 
+ * - In game 1, the game could have been played with as few as 4 red, 2
+ *   green, and 6 blue cubes. If any color had even one fewer cube, the
+ *   game would have been impossible.
+ * - Game 2 could have been played with a minimum of 1 red, 3 green, and 4
+ *   blue cubes.
+ * - Game 3 must have been played with at least 20 red, 13 green, and 6
+ *   blue cubes.
+ * - Game 4 required at least 14 red, 3 green, and 15 blue cubes.
+ * - Game 5 needed no fewer than 6 red, 3 green, and 2 blue cubes in the
+ *   bag.
+ *
+ * The power of a set of cubes is equal to the numbers of red, green and blue
+ * cubes multiplied together. The power of the minimum set of cubes in game 1
+ * is 48. In gmaes 2-5 it was 12, 1560, 630, and 36, respectively. Adding up
+ * these five powers produces the sum 2286.
+ *
+ * For each game, find the minimum set of cubes that must have been present.
+ * What is the sum of the power of these sets?
+ *
  */
 
 class Subset {
-    private static int RED_CUBES = 12;
-    private static int GREEN_CUBES = 13;
-    private static int BLUE_CUBES = 14;
-    
     private int red;
     private int green;
     private int blue;
@@ -85,13 +119,24 @@ class Subset {
             }
         }
     }
-
-    public bool isValid() {
-        return red <= RED_CUBES && green <= GREEN_CUBES && blue <= BLUE_CUBES;
+    public bool isValid(int startingRedCubes, int startingGreenCubes, int startingBlueCubes) {
+        return red <= startingRedCubes && green <= startingGreenCubes && blue <= startingBlueCubes;
+    }
+    public int getRed() {
+        return red;
+    }
+    public int getGreen() {
+        return green;
+    }
+    public int getBlue() {
+        return blue;
     }
 }
 
 class Game {
+    private static int RED_CUBES = 12;
+    private static int GREEN_CUBES = 13;
+    private static int BLUE_CUBES = 14;
     private int id;
     private Subset[] subsets;
     public Game(string description) {
@@ -106,16 +151,33 @@ class Game {
     public bool isValid() {
         bool valid = true;
         foreach (Subset s in subsets) {
-            if (!s.isValid()) {
+            if (!s.isValid(RED_CUBES, GREEN_CUBES, BLUE_CUBES)) {
                 valid = false;
                 break;
             }
         }
         return valid;
     }
-
     public int getId() {
         return id;
+    }
+    private (int, int, int) getMinCubes() {
+        int minRed = 0, minGreen = 0, minBlue = 0;
+        foreach (Subset subset in subsets) {
+            int red = subset.getRed();
+            int green = subset.getGreen();
+            int blue = subset.getBlue();
+            if (red > minRed) minRed = red;
+            if (green > minGreen) minGreen = green;
+            if (blue > minBlue) minBlue = blue;
+        }
+        return (minRed, minGreen, minBlue);
+    }
+
+    public int getPower() {
+        (int, int, int) res = getMinCubes();
+        int minRed = res.Item1, minGreen = res.Item2, minBlue = res.Item3;
+        return minRed * minGreen * minBlue;
     }
 }
 
@@ -126,6 +188,14 @@ public class Program {
         foreach (string line in input) {
             Game game = new Game(line);
             if (game.isValid()) sum += game.getId();
+        }
+        return sum;
+    }
+    static int partTwo(List<string> input) {
+        int sum = 0;
+        foreach (string line in input) {
+            Game game = new Game(line);
+            sum += game.getPower();
         }
         return sum;
     }
@@ -140,5 +210,6 @@ public class Program {
         reader.Close();
 
         Console.WriteLine("Part One: " + partOne(lines));
+        Console.WriteLine("Part Two: " + partTwo(lines));
     }
 }
